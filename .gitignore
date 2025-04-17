@@ -3,9 +3,6 @@
 *.pyo
 *.pyd
 __pycache__/
-*.db
-*.sqlite3
-*.sql
 *.log
 *.out
 *.err
@@ -36,6 +33,12 @@ tailwind.config.js.map
 staticfiles/
 media/
 mediafiles/
+
+# Archivos de base de datos y scripts SQL
+*.sql
+*.db
+*.dump
+mysqldump.sql
 
 # Archivos de IDE y editores
 .idea/
