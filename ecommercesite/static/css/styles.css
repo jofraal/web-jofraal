@@ -1,0 +1,95 @@
+/* Estilos generales para la tienda virtual */
+
+/* Variables de colores */
+:root {
+    --primary-color: #3b82f6;
+    --secondary-color: #f59e0b;
+    --accent-color: #10b981;
+    --text-color: #1f2937;
+    --light-gray: #f3f4f6;
+    --dark-gray: #4b5563;
+    --error-color: #ef4444;
+    --success-color: #10b981;
+}
+
+/* Estilos generales */
+body {
+    font-family: 'Inter', sans-serif;
+    color: var(--text-color);
+    line-height: 1.5;
+}
+
+/* Animaciones y transiciones */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Estilos para botones */
+.btn-hover-effect:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para tarjetas de productos */
+.product-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para el carrito */
+.cart-item {
+    transition: background-color 0.3s ease;
+}
+
+.cart-item:hover {
+    background-color: var(--light-gray);
+}
+
+/* Estilos para formularios */
+.form-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* Estilos para mensajes de notificación */
+.notification {
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.notification.success {
+    background-color: rgba(16, 185, 129, 0.1);
+    border-left: 4px solid var(--success-color);
+}
+
+.notification.error {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-left: 4px solid var(--error-color);
+}
+
+/* Estilos para la página de detalles del producto */
+.product-gallery img {
+    transition: opacity 0.3s ease;
+}
+
+.product-gallery img:hover {
+    opacity: 0.8;
+}
+
+/* Estilos para dispositivos móviles */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}

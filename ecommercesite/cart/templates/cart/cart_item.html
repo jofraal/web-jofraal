@@ -1,0 +1,104 @@
+<div id="item-{{ item.id }}-container" class="pb-6 mb-6 border-b border-gray-200 cart-item transition-all duration-300 hover:bg-gray-50 rounded-lg p-3" data-item-id="{{ item.id }}">
+    <div class="flex gap-4 items-start fade-in">
+        <!-- Imagen del producto -->
+        <div class="overflow-hidden flex-shrink-0 w-24 h-24 rounded-lg shadow-sm transition-all duration-300 hover:shadow-md transform hover:scale-105">
+            {% if item.variant and item.variant.image %}
+                <img src="{{ item.variant.image.url }}" alt="{{ item.product.name }}" class="object-cover w-full h-full">
+            {% elif item.product.image %}
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="object-cover w-full h-full">
+            {% else %}
+                <div class="flex justify-center items-center w-full h-full bg-gray-200">
+                    <span class="text-xs text-gray-500">Sin imagen</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Detalles del producto -->
+        <div class="flex-1">
+            <div class="flex justify-between items-center mb-2">
+                <div class="flex items-center">
+                    <input type="checkbox"
+                           name="select-{{ item.id }}"
+                           class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+                           {% if item.selected %}checked{% endif %}
+                           data-action="toggle-select"
+                           hx-post="{% url 'cart:toggle_select' item.id %}"
+                           hx-target="#cart-container"
+                           hx-swap="innerHTML"
+                           hx-headers='{"X-CSRFToken": "{{ csrf_token }}", "X-Trigger-Cart-Update": "true"}'>
+                    <span class="ml-2 text-sm font-semibold text-gray-700">{{ item.product.name }}</span>
+                </div>
+                <button class="text-red-500 transition-all duration-300 hover:text-red-700 p-2 rounded-full hover:bg-red-50"
+                        data-action="remove"
+                        hx-delete="{% url 'cart:remove_item' item.id %}"
+                        hx-target="#cart-container"
+                        hx-swap="innerHTML"
+                        hx-confirm="¿Estás seguro de que quieres eliminar este artículo?"
+                        hx-headers='{"X-CSRFToken": "{{ csrf_token }}", "X-Trigger-Cart-Update": "true"}'>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Información de la variante -->
+            {% if item.variant %}
+            <div class="mb-2 text-xs text-gray-600 bg-gray-100 inline-block px-2 py-1 rounded-md">
+                {% if item.variant.color %}<span class="font-medium">Color:</span> {{ item.variant.color }}{% endif %}
+                {% if item.variant.color and item.variant.size %} | {% endif %}
+                {% if item.variant.size %}<span class="font-medium">Talla:</span> {{ item.variant.size }}{% endif %}
+            </div>
+            {% endif %}
+            
+            <!-- Precio -->
+            <div class="mb-2">
+                <span class="text-sm font-medium text-indigo-700">S/ {{ item.total_price|floatformat:2 }}</span>
+                {% if item.product.discount_percentage > 0 %}
+                <span class="ml-2 text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full">{{ item.product.discount_percentage }}% DSCTO</span>
+                {% endif %}
+            </div>
+            
+            <!-- Controles de cantidad -->
+            <div class="flex items-center mt-2 bg-gray-50 rounded-lg border border-gray-200 inline-flex shadow-sm">
+                <button class="p-2 transition-all duration-300 hover:bg-gray-200 rounded-l-lg"
+                        data-action="decrease"
+                        hx-post="{% url 'cart:decrease_quantity' item.id %}"
+                        hx-target="#cart-container"
+                        hx-swap="innerHTML">
+                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                    </svg>
+                </button>
+                <span class="w-16 text-center border-gray-200 border-x font-medium">{{ item.quantity }}</span>
+                <button class="p-2 transition-all duration-300 hover:bg-gray-200 rounded-r-lg"
+                        data-action="increase"
+                        hx-post="{% url 'cart:increase_quantity' item.id %}"
+                        hx-target="#cart-container"
+                        hx-swap="innerHTML">
+                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Estado de compra -->
+            <p class="mt-2 text-xs">
+                {% if item.user_has_purchased %}
+                    <span class="text-green-600 bg-green-50 px-2 py-1 rounded-full inline-flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Comprado anteriormente
+                    </span>
+                {% else %}
+                    <span class="text-gray-600 bg-gray-100 px-2 py-1 rounded-full inline-flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        No comprado
+                    </span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,155 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% block title %}Productos para {{ gender|title }}{% endblock %}
+{% block content %}
+<!-- Mostrar productos filtrados por género -->
+<div class="container px-4 py-6 mx-auto min-h-screen bg-gray-50 sm:py-8 lg:py-10">
+    <h1 class="mb-6 text-2xl font-bold text-left text-red-600 uppercase sm:mb-8 sm:text-3xl md:text-4xl">
+        Productos para {{ gender|title }}
+    </h1>
+
+    <!-- Lista de productos -->
+    <div class="grid grid-cols-1 gap-4 xs:grid-cols-2 sm:gap-5 md:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+        {% for product in products %}
+        <div class="overflow-hidden relative bg-white border border-gray-200 transition-transform duration-300 group">
+            <a href="{% url 'products:product_detail' product.id product.slug %}" class="block">
+                <!-- Imagen del producto -->
+                <div class="overflow-hidden relative w-full h-64">
+                    <img src="{{ product.get_image_url }}" alt="{{ product.name }}" class="object-cover w-full h-full transition-transform duration-300 transform group-hover:scale-105">
+                    <!-- Etiquetas especiales -->
+                    
+                    {% if product.discount_percentage > 0 %}
+                    <div class="absolute right-2 bottom-2 px-2 py-1 text-xs font-semibold text-white bg-red-600">
+                        {{ product.discount_percentage }}% DSCTO
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Detalles del producto -->
+                <div class="p-4 text-center">
+                    <h3 class="text-base font-medium text-gray-900 uppercase">{{ product.name }}</h3>
+                    <p class="text-xs text-gray-600 uppercase">{{ product.brand|default:"JOHN HOLDEN" }}</p>
+                    <div class="flex justify-center items-center mt-2">
+                        {% if product.discount_percentage > 0 %}
+                        <span class="mr-2 text-sm text-gray-500 line-through">S/ {{ product.original_price|floatformat:2 }}</span>
+                        <span class="text-base font-bold text-red-600">S/ {{ product.discounted_price|floatformat:2 }}</span>
+                        {% else %}
+                        <span class="text-base font-bold text-red-600">S/ {{ product.price|floatformat:2 }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Etiqueta de corbata gratis si aplica -->
+                    {% if product.has_free_gift %}
+                    <div class="inline-block px-2 py-1 mt-2 text-xs font-semibold text-white bg-black">
+                        CORBATA GRATIS
+                    </div>
+                    {% endif %}
+                </div>
+            </a>
+            <!-- Botón de añadir al carrito -->
+            <div class="hidden p-4 pt-0 group-hover:block">
+                <button class="px-4 py-2 w-full text-sm text-white bg-black rounded transition-colors add-to-cart-btn hover:bg-gray-800"
+                        data-product-id="{{ product.id }}"
+                        {% if product.variants.exists %}data-variant-id="{{ product.variants.first.id }}"{% else %}data-variant-id=""{% endif %}>
+                    Agregar al Carrito
+                </button>
+                <div class="mt-2 text-center product-message-{{ product.id }}"></div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full py-8 text-center text-gray-600">
+            <p>No hay productos disponibles para este género.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const initCart = () => {
+            document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+                button.addEventListener('click', async (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    
+                    const productId = button.getAttribute('data-product-id');
+                    const variantId = button.getAttribute('data-variant-id'); // Obtener variant_id
+                    if (!productId) return;
+    
+                    const originalText = button.innerHTML;
+                    button.innerHTML = `
+                        <span class="inline-flex mr-2 w-4 h-4 rounded-full border-2 border-white animate-spin border-t-transparent"></span>
+                        Agregando...
+                    `;
+                    button.disabled = true;
+    
+                    try {
+                        const response = await fetch(`/cart/add/${productId}/`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCookie('csrftoken')
+                            },
+                            body: JSON.stringify({ 
+                                quantity: 1, 
+                                variant_id: variantId || '' // Incluir variant_id
+                            })
+                        });
+    
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.message || 'Network response was not ok');
+                        }
+                        
+                        const data = await response.json();
+                        
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+    
+                        const cartCounter = document.getElementById('cart-counter');
+                        if (cartCounter && data.cart_count) {
+                            cartCounter.textContent = data.cart_count;
+                            cartCounter.classList.remove('hidden');
+                        }
+    
+                        showNotification('Producto agregado al carrito!', 'success');
+                    } catch (error) {
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                        showNotification(`Error al agregar producto al carrito: ${error.message}`, 'error');
+                        console.error('Error:', error);
+                    }
+                    
+                    return false;
+                });
+            });
+        };
+    
+        const getCookie = (name) => {
+            return document.cookie.split(';')
+                .map(cookie => cookie.trim())
+                .find(cookie => cookie.startsWith(`${name}=`))
+                ?.substring(name.length + 1)
+                ?? null;
+        };
+    
+        const showNotification = (message, type = 'success') => {
+            const notification = document.createElement('div');
+            notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-500 z-50 ${
+                type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+            }`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+    
+            setTimeout(() => {
+                notification.classList.add('opacity-0');
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        };
+    
+        initCart();
+    });
+    </script>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "core/base.html" %}
+{% block title %}Pago Pendiente{% endblock %}
+{% block content %}
+<div class="container px-4 py-12 mx-auto">
+    <div class="overflow-hidden p-8 mx-auto max-w-md text-center bg-white rounded-xl shadow-md md:max-w-2xl">
+        <div class="mb-4 text-yellow-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <h1 class="mb-4 text-2xl font-bold">Pago Pendiente</h1>
+        <p class="mb-6 text-gray-600">Tu pago está en proceso. Recibirás una confirmación por correo electrónico cuando se complete.</p>
+        <a href="{% url 'cart:cart_detail' %}" class="inline-block px-4 py-2 font-bold text-white bg-blue-600 rounded transition duration-300 hover:bg-blue-700">Volver al Carrito</a>
+        <a href="/" class="inline-block px-4 py-2 ml-2 font-bold text-gray-800 bg-gray-200 rounded transition duration-300 hover:bg-gray-300">Ir al Inicio</a>
+    </div>
+</div>
+{% endblock %}

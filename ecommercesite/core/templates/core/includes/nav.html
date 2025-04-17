@@ -1,0 +1,220 @@
+{% load static %}
+
+<body class="font-sans text-black bg-white">
+  <!-- Navegación superior -->
+  <nav class="container flex justify-between items-center p-4 mx-auto max-w-7xl">
+    <a href="/" class="text-2xl italic font-bold text-gray-800">Jonathan Fraal</a>
+    <div class="flex items-center space-x-4">
+      {% if user.is_authenticated %}
+        <!-- Perfil -->
+        <a href="{% url 'users:profile' %}" class="text-gray-800 hover:text-gray-600" title="Perfil">
+          <svg class="w-6 h-6 md:w-7 md:h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A6 6 0 0112 15a6 6 0 016.879 2.804M12 12a4 4 0 100-8 4 4 0 000 8z" />
+          </svg>
+        </a>
+        <!-- Cerrar Sesión -->
+        <a href="{% url 'users:logout' %}" class="text-gray-800 hover:text-gray-600" title="Cerrar Sesión">
+          <svg class="w-6 h-6 md:w-7 md:h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h3a3 3 0 013 3v1" />
+          </svg>
+        </a>
+      {% else %}
+        <!-- Iniciar Sesión -->
+        <a href="{% url 'users:login' %}" class="text-gray-800 hover:text-gray-600" title="Iniciar Sesión">
+          <svg class="w-6 h-6 md:w-7 md:h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+          </svg>
+        </a>
+        <!-- Crear Cuenta -->
+        <a href="{% url 'users:register' %}" class="text-gray-800 hover:text-gray-600" title="Crear Cuenta">
+          <svg class="w-6 h-6 md:w-7 md:h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+          </svg>
+        </a>
+      {% endif %}
+      <!-- Carrito -->
+      <a href="{% url 'cart:cart_detail' %}" class="text-gray-800 hover:text-gray-600" title="Carrito">
+        <svg class="w-6 h-6 md:w-8 md:h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10 20.5c0 .829-.672 1.5-1.5 1.5s-1.5-.671-1.5-1.5c0-.828.672-1.5 1.5-1.5s1.5.672 1.5 1.5zm3.5-1.5c-.828 0-1.5.671-1.5 1.5s.672 1.5 1.5 1.5 1.5-.671 1.5-1.5c0-.828-.672-1.5-1.5-1.5zm6.305-15l-3.432 12h-10.428l-3.777-9h-2.168l4.615 11h13.239l3.474-12h1.929l.743-2h-4.195zm-5.948 10c1.039-6.826-3.961-10.102-3.961-10.102l.778-1.898-5.389 2.26 2.27 5.384.809-2.006c-.001 0 4.591 1.74 5.493 6.362z"/>
+        </svg>
+      </a>
+    </div>
+  </nav>
+  
+  <!-- Navegación secundaria -->
+  <nav class="py-4 border-b border-gray-300">
+    <div class="container flex flex-wrap justify-center px-4 mx-auto space-x-4 max-w-7xl text-sm font-medium md:space-x-8">
+      <a href="#" class="py-2 hover:text-gray-600 underline-hover">ORIGINALS</a>
+      <a href="#" class="py-2 hover:text-gray-600 underline-hover">PREMIUM</a>
+      <a href="#" class="py-2 hover:text-gray-600 underline-hover">MEN</a>
+      <a href="#" class="py-2 hover:text-gray-600 underline-hover">WOMEN</a>
+      <a href="#" class="py-2 hover:text-gray-600 underline-hover">HOME</a>
+      <a href="#" class="py-2 hover:text-gray-600 underline-hover">TRACK ORDER</a>
+    </div>
+  </nav>
+
+  {% block content %}
+    {% if request.resolver_match.url_name == "home" %}
+      <section class="video-section">
+        <div class="video-container">
+          <!-- Video Hombre -->
+          <a href="/product/gender/M" class="video-box">
+            <video class="interactive-video" muted loop playsinline preload="metadata" disablePictureInPicture controlsList="nodownload noplaybackrate">
+              <source src="{% static 'videos/video1.mp4' %}" type="video/mp4">
+              Tu navegador no soporta el elemento de video.
+            </video>
+            <div class="video-overlay">
+              <span class="video-title">Hombre</span>
+            </div>
+          </a>
+
+          <!-- Video Mujer -->
+          <a href="/product/gender/W" class="video-box">
+            <video class="interactive-video" muted loop playsinline preload="metadata" disablePictureInPicture controlsList="nodownload noplaybackrate">
+              <source src="{% static 'videos/video2.mp4' %}" type="video/mp4">
+              Tu navegador no soporta el elemento de video.
+            </video>
+            <div class="video-overlay">
+              <span class="video-title">Mujer</span>
+            </div>
+          </a>
+        </div>
+      </section>
+    {% endif %}
+  {% endblock %}
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Estilos personalizados -->
+  <style>
+    :root {
+      --font-family: Arial, sans-serif;
+    }
+
+    body {
+      font-family: var(--font-family);
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .underline-hover {
+      position: relative;
+    }
+    .underline-hover::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: black;
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform 0.3s ease-out;
+    }
+    .underline-hover:hover::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+
+    .video-section {
+      position: relative;
+      width: 100%;
+      height: 100vh; /* Ocupa toda la altura de la pantalla */
+      overflow: hidden;
+    }
+
+    .video-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+    }
+
+    .video-box {
+      position: relative;
+      flex: 1; /* Cada video ocupa la mitad del espacio disponible */
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .interactive-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover; /* Cubre el contenedor manteniendo la proporción */
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .video-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.2); /* Fondo semitransparente */
+      transition: background 0.3s ease;
+    }
+
+    .video-title {
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .video-box:hover .interactive-video {
+      transform: scale(1.05);
+    }
+
+    .video-box:hover .video-overlay {
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .video-box:hover .video-title {
+      color: #a5b4fc; /* Color indigo-300 */
+    }
+
+    @media (min-width: 768px) {
+      .video-container {
+        flex-direction: row;
+      }
+      
+      .video-box {
+        flex: 1;
+        height: 100%;
+      }
+      
+      .video-title {
+        font-size: 2rem;
+      }
+    }
+  </style>
+
+  <!-- Scripts -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const videoContainers = document.querySelectorAll('.video-box');
+
+      videoContainers.forEach(container => {
+        const video = container.querySelector('.interactive-video');
+        video.pause();
+
+        container.addEventListener('mouseenter', () => video.play().catch(console.error));
+        container.addEventListener('mouseleave', () => video.pause());
+        container.addEventListener('touchstart', () => video.play().catch(console.error));
+        container.addEventListener('click', (e) => {
+          e.preventDefault();
+          setTimeout(() => { window.location.href = container.href; }, 300);
+        });
+      });
+    });
+  </script>
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+  <script src="{% static 'js/mercadopago.js' %}"></script>
+</body>
+
+

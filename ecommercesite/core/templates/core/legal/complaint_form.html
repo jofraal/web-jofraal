@@ -1,0 +1,154 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container px-4 py-8 mx-auto max-w-4xl">
+    <!-- Breadcrumb -->
+    <div class="flex items-center mb-6 text-sm">
+        <a href="{% url 'core:home' %}" class="text-gray-600 hover:text-gray-900">INICIO</a>
+        <span class="mx-2">></span>
+        <span class="font-medium text-gray-900">LIBRO DE RECLAMACIONES</span>
+    </div>
+    
+    <!-- Título -->
+    <h1 class="mb-4 text-2xl font-medium text-center">L I B R O   D E   R E C L A M A C I O N E S</h1>
+    
+    <!-- Formulario -->
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- Datos automáticos -->
+        <div class="grid grid-cols-1 gap-4 p-4 mb-4 bg-gray-100 rounded md:grid-cols-2">
+            <div>
+                <p class="text-sm text-gray-700">Fecha y hora de registro: <span id="current-time" class="font-medium"></span></p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-700">Número correlativo: <span class="font-medium">{{ form.instance.numero_correlativo|default:"Se generará al enviar" }}</span></p>
+            </div>
+        </div>
+        
+        <!-- Datos del cliente -->
+        <div class="mt-8">
+            <h2 class="mb-4 text-xl font-medium text-red-600">DATOS DEL CLIENTE</h2>
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {{ form.nombres.label_tag }} {{ form.nombres }}
+                {{ form.apellidos.label_tag }} {{ form.apellidos }}
+                {{ form.tipo_documento.label_tag }} {{ form.tipo_documento }}
+                {{ form.numero_documento.label_tag }} {{ form.numero_documento }}
+                {{ form.departamento.label_tag }} {{ form.departamento }}
+                {{ form.provincia.label_tag }} {{ form.provincia }}
+                {{ form.distrito.label_tag }} {{ form.distrito }}
+            </div>
+            <div class="grid grid-cols-1 gap-4 mt-4">
+                {{ form.direccion.label_tag }} {{ form.direccion }}
+            </div>
+            <div class="grid grid-cols-1 gap-4 mt-4 md:grid-cols-2">
+                {{ form.telefono.label_tag }} {{ form.telefono }}
+                {{ form.email.label_tag }} {{ form.email }}
+            </div>
+            <div class="grid grid-cols-1 gap-4 mt-4">
+                {{ form.representante.label_tag }} {{ form.representante }}
+            </div>
+        </div>
+        
+        <!-- Detalles de la solicitud -->
+        <div class="mt-8">
+            <h2 class="mb-4 text-xl font-medium text-red-600">DETALLES DE LA SOLICITUD</h2>
+            <div class="mb-4">
+                {{ form.tipo_solicitud.label_tag }}
+                <div class="flex items-center space-x-6">
+                    {% for radio in form.tipo_solicitud %}
+                        <div class="flex items-center">
+                            {{ radio.tag }}
+                            <label for="{{ radio.id_for_label }}" class="ml-2 text-sm text-gray-700">{{ radio.choice_label }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {{ form.numero_pedido.label_tag }} {{ form.numero_pedido }}  <!-- Cambiado de nombre_pedido a numero_pedido -->
+                {{ form.monto_reclamado.label_tag }} {{ form.monto_reclamado }}
+            </div>
+        </div>
+        
+        <!-- Detalle de la reclamación -->
+        <div class="mt-8">
+            <h2 class="mb-4 text-xl font-medium text-red-600">DETALLE DE LA RECLAMACIÓN</h2>
+            <div class="mb-4">
+                {{ form.tipo_reclamo.label_tag }}
+                <div class="flex flex-col space-y-1">
+                    {% for radio in form.tipo_reclamo %}
+                        <div class="flex items-center">
+                            {{ radio.tag }}
+                            <label for="{{ radio.id_for_label }}" class="ml-2 text-sm text-gray-700">{{ radio.choice_label }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="grid grid-cols-1 gap-4">
+                {{ form.detalle.label_tag }} {{ form.detalle }}
+                <p class="mt-1 text-xs text-gray-500">Máximo 1200 caracteres</p>
+                {{ form.pedido.label_tag }} {{ form.pedido }}
+                <p class="mt-1 text-xs text-gray-500">Máximo 300 caracteres</p>
+            </div>
+        </div>
+        
+        <!-- Información importante -->
+        <div class="mt-8">
+            <h2 class="mb-4 text-xl font-medium text-red-600">IMPORTANTE</h2>
+            <ul class="space-y-2 text-sm text-gray-700">
+                <li>• El proveedor debe dar respuesta al reclamo o queja en un plazo no mayor a quince (15) días hábiles, el mismo podrá ser extendido.</li>
+                <li>• La formulación del reclamo no impide acudir a otras vías de solución de controversias ni es requisito previo para interponer una denuncia ante el INDECOPI.</li>
+                <li>• La información, que se consigna en el reclamo, tendrá las acciones adoptadas y será remitida al correo electrónico o a su teléfono de contacto registrado.</li>
+                <li>• Acepta los <a href="{% url 'core:terms' %}" class="text-red-600 underline">Términos y Condiciones</a> y las <a href="{% url 'core:privacy' %}" class="text-red-600 underline">Políticas de Privacidad</a>.</li>
+            </ul>
+        </div>
+        
+        <!-- Botón de envío -->
+        <div class="mt-6 text-center">
+            <button type="submit" class="px-8 py-2 font-medium tracking-wide text-white uppercase bg-red-600 transition duration-200 hover:bg-red-700">
+                ENVIAR
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- JavaScript para mostrar y actualizar la hora en tiempo real -->
+<script>
+    function updateTime() {
+        const now = new Date();
+        const options = {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        };
+        const formattedTime = now.toLocaleString('es-PE', options).replace(/,/, '');
+        document.getElementById('current-time').textContent = formattedTime;
+    }
+    updateTime();
+    setInterval(updateTime, 1000);
+</script>
+{% endblock %}<!-- Detalle de la reclamación -->
+<div class="mt-8">
+    <h2 class="mb-4 text-xl font-medium text-red-600">DETALLE DE LA RECLAMACIÓN</h2>
+    <div class="mb-4">
+        {{ form.tipo_reclamo.label_tag }}
+        <div class="flex flex-col space-y-1">
+            {% for radio in form.tipo_reclamo %}
+                <div class="flex items-center">
+                    {{ radio.tag }}
+                    <label for="{{ radio.id_for_label }}" class="ml-2 text-sm text-gray-700">{{ radio.choice_label }}</label>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="grid grid-cols-1 gap-4">
+        {{ form.detalle.label_tag }} {{ form.detalle }}
+        <p class="mt-1 text-xs text-gray-500">Máximo 1200 caracteres</p>
+        {{ form.pedido.label_tag }} {{ form.pedido }}
+        <p class="mt-1 text-xs text-gray-500">Máximo 300 caracteres</p>
+    </div>
+</div>

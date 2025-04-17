@@ -1,0 +1,191 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Registrarse - Jonathan Fraal{% endblock %}
+
+{% block content %}
+<div class="flex flex-col min-h-screen md:flex-row">
+  <!-- Left side - Image -->
+  <div class="bg-blue-400 md:w-1/2">
+    <img src="{% static 'images/friends.jpg' %}" alt="Amigos sonriendo" class="object-cover w-full h-full">
+  </div>
+  
+  <!-- Right side - Form -->
+  <div class="flex items-center justify-center p-8 bg-gray-50 md:w-1/2">
+    <div class="w-full max-w-md">
+      <h1 class="mb-8 text-3xl font-bold text-gray-900 playfair">Crear una cuenta</h1>
+      
+      <!-- Account creation heading -->
+      <div class="mb-6">
+        <p class="text-gray-600">Complete el formulario para crear su cuenta</p>
+      </div>
+      
+      <!-- Form -->
+      <form method="post" action="{% url 'users:register' %}">
+        {% csrf_token %}
+        
+        {% if form.errors %}
+          <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
+            <p>Por favor, corrige los errores en el formulario:</p>
+            <ul class="pl-5 mt-2 list-disc">
+              {% for field in form %}
+                {% for error in field.errors %}
+                  <li>{{ field.label }}: {{ error }}</li>
+                {% endfor %}
+              {% endfor %}
+              {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+        
+        <div class="mb-4">
+          <input
+            type="text"
+            name="username"
+            placeholder="Nombre de usuario"
+            required
+            value="{{ form.username.value|default:'' }}"
+            class="p-3 w-full rounded-lg border {% if form.username.errors %}border-red-500{% else %}border-gray-300{% endif %} focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-300"
+          >
+          {% if form.username.errors %}
+            <p class="mt-1 text-xs text-red-500">{{ form.username.errors.0 }}</p>
+          {% endif %}
+        </div>
+        
+        <div class="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2">
+          <div>
+            <input
+              type="text"
+              name="first_name"
+              placeholder="Nombre"
+              required
+              value="{{ form.first_name.value|default:'' }}"
+              class="p-3 w-full rounded-lg border {% if form.first_name.errors %}border-red-500{% else %}border-gray-300{% endif %} focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-300"
+            >
+            {% if form.first_name.errors %}
+              <p class="mt-1 text-xs text-red-500">{{ form.first_name.errors.0 }}</p>
+            {% endif %}
+          </div>
+          <div>
+            <input
+              type="text"
+              name="last_name"
+              placeholder="Apellidos"
+              required
+              value="{{ form.last_name.value|default:'' }}"
+              class="p-3 w-full rounded-lg border {% if form.last_name.errors %}border-red-500{% else %}border-gray-300{% endif %} focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-300"
+            >
+            {% if form.last_name.errors %}
+              <p class="mt-1 text-xs text-red-500">{{ form.last_name.errors.0 }}</p>
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="mb-4">
+          <input
+            type="email"
+            name="email"
+            placeholder="Correo electrónico"
+            required
+            value="{{ form.email.value|default:'' }}"
+            class="p-3 w-full rounded-lg border {% if form.email.errors %}border-red-500{% else %}border-gray-300{% endif %} focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-300"
+          >
+          {% if form.email.errors %}
+            <p class="mt-1 text-xs text-red-500">{{ form.email.errors.0 }}</p>
+          {% endif %}
+        </div>
+        
+        <div class="relative mb-4">
+          <input
+            type="password"
+            name="password1"
+            id="password1"
+            placeholder="Contraseña"
+            required
+            class="p-3 w-full rounded-lg border {% if form.password1.errors %}border-red-500{% else %}border-gray-300{% endif %} focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-300"
+          >
+          <button type="button" id="toggle-password" class="absolute text-gray-500 transform -translate-y-1/2 right-3 top-1/2">
+            <i class="w-5 h-5 fas fa-eye-slash"></i>
+          </button>
+          {% if form.password1.errors %}
+            <p class="mt-1 text-xs text-red-500">{{ form.password1.errors.0 }}</p>
+          {% endif %}
+        </div>
+        
+        <div class="relative mb-6">
+          <input
+            type="password"
+            name="password2"
+            id="password2"
+            placeholder="Confirmar contraseña"
+            required
+            class="p-3 w-full rounded-lg border {% if form.password2.errors %}border-red-500{% else %}border-gray-300{% endif %} focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-300"
+          >
+          {% if form.password2.errors %}
+            <p class="mt-1 text-xs text-red-500">{{ form.password2.errors.0 }}</p>
+          {% endif %}
+        </div>
+        
+        <div class="mb-6 text-sm text-gray-600">
+          Al crear una cuenta, aceptas nuestras 
+          <a href="#" class="text-indigo-600 hover:underline transition-300">Condiciones de uso</a> y admites haber leído nuestro 
+          <a href="#" class="text-indigo-600 hover:underline transition-300">Aviso de privacidad</a>.
+        </div>
+        
+        <button
+          type="submit"
+          class="w-full py-3 font-medium text-gray-800 bg-gray-300 rounded-lg hover:bg-gray-400 transition-300"
+        >
+          Crear una cuenta
+        </button>
+        
+        <div class="flex items-center my-6">
+          <div class="flex-grow h-px bg-gray-300"></div>
+          <span class="px-4 text-sm text-gray-500">o continúa con</span>
+          <div class="flex-grow h-px bg-gray-300"></div>
+        </div>
+        
+        <div class="grid grid-cols-1 gap-4">
+          <a
+            href="{% url 'social:begin' 'google-oauth2' %}"
+            class="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-300"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" viewBox="0 0 24 24">
+              <path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/>
+            </svg>
+            Google
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% if messages %}
+  <div class="fixed right-5 bottom-5">
+    {% for message in messages %}
+      <div class="bg-{{ message.tags }} text-white px-6 py-4 rounded-lg shadow-lg mb-3">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Toggle password visibility
+  document.getElementById('toggle-password').addEventListener('click', function() {
+    const passwordInput = document.getElementById('password1');
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordInput.setAttribute('type', type);
+    this.innerHTML = type === 'password' ? 
+      '<i class="w-5 h-5 fas fa-eye-slash"></i>' : 
+      '<i class="w-5 h-5 fas fa-eye"></i>';
+  });
+
+  // Account type selection has been removed
+</script>
+{% endblock %}

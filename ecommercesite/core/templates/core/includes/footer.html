@@ -1,0 +1,155 @@
+<footer class="px-4 py-12 bg-black playfair">
+    <div class="mx-auto max-w-7xl">
+        <div class="grid grid-cols-1 gap-8 mb-12 md:grid-cols-4">
+            <!-- Brand Section -->
+            <div class="md:col-span-2 lg:col-span-1">
+                <h2 class="mb-6 text-3xl italic font-bold text-white">Jonathan Fraal</h2>
+                <address class="not-italic">
+                    <p class="mb-3">
+                        <a href="mailto:support@cristianmoretti.com" 
+                           class="text-white transition duration-300 ease-in-out hover:text-gray-300 hover:underline"
+                           aria-label="Enviar correo electrónico">
+                            support@cristianmoretti.com
+                        </a>
+                    </p>
+                    <p class="mb-3">
+                        <a href="tel:+12138020931" 
+                           class="text-white transition duration-300 ease-in-out hover:text-gray-300 hover:underline"
+                           aria-label="Llamar por teléfono">
+                            +51 941287163
+                        </a>
+                    </p>
+                    <p class="text-white">Horario de Atención:<br>
+                    Lunes a Viernes, 9:00 - 18:00 </p>
+                </address>
+            </div>
+
+            <!-- Navigation Sections -->
+            <nav aria-label="Navegación principal">
+                <h3 class="mb-4 text-lg font-bold text-white uppercase">Servicio al cliente</h3>
+                <ul class="space-y-2">
+                    <li><a href="{% url 'core:preguntas_frecuentes' %}" class="text-white transition duration-300 ease-in-out hover:text-gray-300 hover:underline">Preguntas frecuentes</a></li>
+                    <li><a href="{% url 'core:tiempos_costos_envio' %}" class="text-white transition duration-300 ease-in-out hover:text-gray-300 hover:underline">Tiempos y costos de envíos</a></li>
+                    <li><a href="{% url 'core:formas_pago' %}" class="text-white transition duration-300 ease-in-out hover:text-gray-300 hover:underline">Formas de pago</a></li>
+                    <li><a href="{% url 'core:politica_cambios_devoluciones' %}" class="text-white transition duration-300 ease-in-out hover:text-gray-300 hover:underline">Cambios y devoluciones</a></li>
+                </ul>
+            </nav>
+
+            <nav aria-label="Navegación legal y soporte">
+                <h3 class="mb-4 text-lg font-bold text-white uppercase">Legal</h3>
+                <ul class="space-y-2">
+                    <li><a href="{% url 'core:complaint_form' %}" class="text-white transition duration-300 ease-in-out hover:text-gray-300 hover:underline">Libro de Reclamaciones</a></li>
+                    <li><a href="{% url 'core:privacy' %}" class="text-white transition duration-300 ease-in-out hover:text-gray-300 hover:underline">Políticas de Privacidad</a></li>
+                    <li><a href="{% url 'core:terms' %}" class="text-white transition duration-300 ease-in-out hover:text-gray-300 hover:underline">Términos y Condiciones</a></li>
+                    <li><a href="{% url 'core:politica_cambios_devoluciones' %}" class="text-white transition duration-300 ease-in-out hover:text-gray-300 hover:underline">Devoluciones</a></li>
+                </ul>
+            </nav>
+
+            <!-- Newsletter -->
+            <div>
+                <h3 class="mb-4 text-lg font-bold text-white uppercase">Newsletter</h3>
+                <form 
+                    id="newsletter-form"
+                    hx-post="{% url 'core:subscribe_newsletter' %}" 
+                    hx-target="#newsletter-message" 
+                    hx-swap="innerHTML"
+                    class="max-w-xs">
+                    {% csrf_token %}
+                    <label for="email" class="sr-only">Correo electrónico</label>
+                    <div class="flex gap-2">
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            placeholder="Tu correo electrónico" 
+                            class="w-full px-4 py-3 text-white transition duration-300 ease-in-out bg-gray-800 border border-white/20 focus:outline-none focus:border-white/40"
+                            required>
+                        <button 
+                            type="submit" 
+                            class="px-6 py-3 font-bold text-black transition duration-300 ease-in-out bg-white hover:bg-gray-200"
+                            aria-label="Suscribirse">
+                            →
+                        </button>
+                    </div>
+                    <p class="mt-2 text-sm text-white opacity-75">Únete a nuestro Club VIP</p>
+                </form>
+                <div id="newsletter-message" class="mt-2"></div>
+            </div>
+        </div>
+
+        <!-- Social and Copyright -->
+        <div class="flex flex-col justify-between gap-6 pt-8 border-t border-white/20 md:flex-row">
+            <div class="flex gap-6 text-xl">
+                <a href="https://www.facebook.com/" class="text-white transition duration-300 ease-in-out hover:text-gray-300" aria-label="Facebook">
+                    <i class="fa-brands fa-facebook"></i>
+                </a>
+                <a href="https://www.instagram.com/" class="text-white transition duration-300 ease-in-out hover:text-gray-300" aria-label="Instagram">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="https://www.pinterest.com/" class="text-white transition duration-300 ease-in-out hover:text-gray-300" aria-label="Pinterest">
+                    <i class="fa-brands fa-pinterest"></i>
+                </a>
+            </div>
+            
+            <div class="container py-4 mx-auto text-center">
+                <p class="text-white">@2025 Jofraal Inc. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup de Agradecimiento -->
+    <div id="newsletter-popup" class="fixed inset-0 flex items-center justify-center hidden bg-black bg-opacity-50">
+        <div class="w-full max-w-sm p-6 text-center bg-white rounded-lg shadow-lg">
+            <h3 class="mb-4 text-xl font-bold text-gray-800">¡Gracias por suscribirte!</h3>
+            <p class="mb-4 text-gray-700">Te has unido a nuestro Club VIP. Pronto recibirás nuestras novedades.</p>
+            <button 
+                onclick="document.getElementById('newsletter-popup').classList.add('hidden')"
+                class="px-4 py-2 text-white transition duration-300 ease-in-out bg-black rounded hover:bg-gray-800">
+                Cerrar
+            </button>
+        </div>
+    </div>
+    <!-- Popup de Error -->
+    <div id="newsletter-error-popup" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50">
+        <div class="w-full max-w-sm p-6 text-center bg-white rounded-lg shadow-lg">
+            <h3 class="mb-4 text-xl font-bold text-red-600">Error</h3>
+            <p id="newsletter-error-message" class="mb-4 text-gray-700"></p>
+            <button 
+                onclick="document.getElementById('newsletter-error-popup').classList.add('hidden')"
+                class="px-4 py-2 text-white transition duration-300 ease-in-out bg-red-600 rounded hover:bg-red-700">
+                Cerrar
+            </button>
+        </div>
+    </div>
+</footer>
+
+<!-- JavaScript para Mostrar el Popup -->
+<script>
+    document.addEventListener('htmx:afterSwap', function(event) {
+        if (event.target.id === 'newsletter-message') {
+            const response = JSON.parse(event.detail.xhr.responseText);
+            if (response.success) {
+                // Mostrar el popup si la suscripción fue exitosa
+                document.getElementById('newsletter-popup').classList.remove('hidden');
+                // Limpiar el formulario usando el ID
+                document.getElementById('newsletter-form').reset();
+            } else {
+                // Mostrar el popup de error si la suscripción falló
+                document.getElementById('newsletter-error-message').textContent = response.message;
+                document.getElementById('newsletter-error-popup').classList.remove('hidden');
+            }
+        }
+    });
+    
+    // Añadir un manejador para errores de respuesta HTMX
+    document.addEventListener('htmx:responseError', function(event) {
+        try {
+            const response = JSON.parse(event.detail.xhr.responseText);
+            document.getElementById('newsletter-error-message').textContent = response.message;
+            document.getElementById('newsletter-error-popup').classList.remove('hidden');
+        } catch (error) {
+            document.getElementById('newsletter-error-message').textContent = 'Ocurrió un error al procesar la solicitud.';
+            document.getElementById('newsletter-error-popup').classList.remove('hidden');
+        }
+    });
+</script>

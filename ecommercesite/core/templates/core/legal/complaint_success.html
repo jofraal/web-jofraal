@@ -1,0 +1,18 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container px-4 py-8 mx-auto max-w-4xl">
+    <h1 class="mb-4 text-2xl font-medium text-center">¡Gracias!</h1>
+    <p class="text-center text-gray-700">
+        Tu reclamación ha sido enviada con éxito. Nos pondremos en contacto contigo pronto.
+    </p>
+    <p class="mt-2 font-medium text-center text-gray-700">
+        Número correlativo de tu reclamación: <span class="text-red-600">{{ numero_correlativo }}</span>
+    </p>
+    <div class="mt-6 text-center">
+        <a href="{% url 'core:home' %}" class="px-8 py-2 font-medium tracking-wide text-white uppercase bg-red-600 transition duration-200 hover:bg-red-700">
+            Volver al Inicio
+        </a>
+    </div>
+</div>
+{% endblock %}

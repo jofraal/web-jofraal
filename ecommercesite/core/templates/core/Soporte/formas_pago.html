@@ -1,0 +1,29 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container mx-auto p-6 max-w-4xl">
+    <!-- Título principal -->
+    <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">Formas de Pago</h1>
+
+    <!-- Sección: Formas de Pago -->
+    <section class="mb-10">
+        <ol class="list-decimal list-inside space-y-4 text-gray-600">
+            <li>
+                Para usuarios residentes en Lima y provincias con tarjetas de crédito o débito. Los pagos realizados con tarjeta están sujetos a la aprobación del banco emisor. En caso el banco no apruebe la transacción después de haberse efectuado no tengamos la confirmación del mismo aun cuando la transacción se muestre como exitosa, procederemos a anular la compra y realizaremos el extorno a la tarjeta de crédito o débito según sea el caso. TIENDAS EL considerará como no válida la transacción cuando se evidencie o notifique algún tipo de fraude, cuando se produzca un error sistémico que distorsione el precio de las ofertas o cuando concurra alguna otra causa justificada, y procederá a anular la transacción, cancelar el despacho del producto y solicitar al banco emisor de la tarjeta que realice el extorno del importe comprometido.
+            </li>
+            <li>
+                Para usuarios que realicen pago EFECTIVO. De no contar con una tarjeta de crédito o débito, el usuario podrá elegir la opción “Pago efectivo”, mediante la cual se hará la reserva del producto y se generará un cupón de pago en el cual deberá acercarse a cualquiera de los establecimientos o agencias afiliadas a la empresa “Pago Efectivo”. El pago del cupón deberá realizarse dentro de las 48 horas a partir de su emisión. En caso contrario, se cancelará la solicitud de compra realizada. Los establecimientos y plataformas afiliadas autorizadas para efectuar el pago del cupón de Pago Efectivo son los bancos BBVA Continental, Banco de Crédito del Perú BCP, Scotiabank, Interbank (incluyendo los canales de atención de los que dispongan dichos bancos), Agencias Western Union y establecimientos afiliados a Pago Efectivo y Full Carga.
+            </li>
+            <li>
+                No se aceptarán transacciones de usuarios que indiquen cuentas con costo no habilitados y falsas.
+            </li>
+            <li>
+                Los precios de los productos consignados en la tienda virtual son en moneda nacional (S/) y de igual manera los comprobantes de pago que se emitan.
+            </li>
+            <li>
+                El usuario deberá decidir correctamente el tipo de documento electrónico que solicitará como comprobante de pago de su compra, ya que no existe ningún procedimiento vigente que permita el cambio de boletas de venta por facturas.
+            </li>
+        </ol>
+    </section>
+</div>
+{% endblock %}

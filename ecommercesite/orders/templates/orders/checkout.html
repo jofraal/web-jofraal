@@ -1,0 +1,287 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<script src="{% static 'orders/js/checkout_validation.js' %}"></script>
+{% endblock %}
+{% block content %}
+<div class="container px-4 py-8 mx-auto">
+    <h1 class="flex items-center mb-6 text-2xl font-bold text-gray-800">
+        <svg xmlns="http://www.w3.org/2000/svg" class="mr-2 w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        Finalizar la compra
+    </h1>
+    <div class="flex flex-col gap-6 lg:flex-row">
+        <!-- Formulario de compra -->
+        <div class="w-full lg:w-2/3">
+            <!-- Step 1: Identificación -->
+            <div id="step-identification" class="p-6 mb-6 bg-white rounded-lg shadow-md {% if active_step == 'shipping' %}hidden{% endif %}">
+                <div class="flex items-center mb-4">
+                    <div class="flex justify-center items-center mr-3 w-8 h-8 text-white bg-gray-800 rounded-full">
+                        <span>1</span>
+                    </div>
+                    <h2 class="text-xl font-semibold">Identificación</h2>
+                </div>
+                <p class="mb-4 text-gray-600">Solicitamos únicamente la información esencial para la finalización de la compra.</p>
+                
+                <form method="post" id="identification-form" action="{% url 'orders:checkout' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="step" value="identification">
+                    <div class="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2">
+                        <div>
+                            <label for="{{ identification_form.email.id_for_label }}" class="block mb-1 text-sm font-medium text-gray-700">Correo<span class="text-red-500">*</span></label>
+                            {{ identification_form.email }}
+                            {% if identification_form.email.errors %}
+                                <p class="text-xs text-red-500">{{ identification_form.email.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="hidden md:block"></div>
+                        <div>
+                            <label for="{{ identification_form.first_name.id_for_label }}" class="block mb-1 text-sm font-medium text-gray-700">Nombre<span class="text-red-500">*</span></label>
+                            {{ identification_form.first_name }}
+                            {% if identification_form.first_name.errors %}
+                                <p class="text-xs text-red-500">{{ identification_form.first_name.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ identification_form.last_name.id_for_label }}" class="block mb-1 text-sm font-medium text-gray-700">Apellidos<span class="text-red-500">*</span></label>
+                            {{ identification_form.last_name }}
+                            {% if identification_form.last_name.errors %}
+                                <p class="text-xs text-red-500">{{ identification_form.last_name.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ identification_form.phone.id_for_label }}" class="block mb-1 text-sm font-medium text-gray-700">Teléfono / Móvil<span class="text-red-500">*</span></label>
+                            {{ identification_form.phone }}
+                            {% if identification_form.phone.errors %}
+                                <p class="text-xs text-red-500">{{ identification_form.phone.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex items-center">
+                            {{ identification_form.invoice_requested }}
+                            <label for="{{ identification_form.invoice_requested.id_for_label }}" class="block ml-2 text-sm text-gray-700">DESEO FACTURA</label>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex items-center">
+                            <input type="checkbox" name="data_usage" id="data_usage" class="w-4 h-4 text-blue-600 rounded border-gray-300">
+                            <label for="data_usage" class="block ml-2 text-sm text-gray-700">Autorizo el tratamiento de mis datos para fines adicionales.</label>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex items-center">
+                            {{ identification_form.terms_accepted }}
+                            <label for="{{ identification_form.terms_accepted.id_for_label }}" class="block ml-2 text-sm text-gray-700">
+                                He leído y acepto los <a href="{% url 'core:terms' %}" class="text-red-600 hover:text-red-800">términos y condiciones</a> y las <a href="{% url 'core:privacy' %}" class="text-red-600 hover:text-red-800">Políticas de Privacidad</a>
+                                <span class="text-red-500">*</span>
+                            </label>
+                            {% if identification_form.terms_accepted.errors %}
+                                <p class="text-xs text-red-500">{{ identification_form.terms_accepted.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <button type="submit" id="continue-to-shipping" class="px-4 py-3 w-full font-medium text-white bg-red-500 rounded-md transition duration-300 hover:bg-red-600">
+                            CONTINUAR
+                        </button>
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500">(*) Datos Obligatorios.</p>
+                </form>
+            </div>
+            
+            <!-- Step 2: Envío -->
+            <div id="step-shipping" class="p-6 mb-6 bg-white rounded-lg shadow-md {% if active_step != 'shipping' %}hidden{% endif %}">
+                <div class="flex items-center mb-4">
+                    <div class="flex justify-center items-center mr-3 w-8 h-8 text-white bg-gray-800 rounded-full">
+                        <span>2</span>
+                    </div>
+                    <h2 class="text-xl font-semibold">Envío</h2>
+                </div>
+                
+                <form id="shipping-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="step" value="shipping">
+                    <input type="hidden" id="transaction_amount" name="transaction_amount" value="{{ total|floatformat:2 }}">
+                    <div class="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2">
+                        <div>
+                            <label for="{{ shipping_form.department.id_for_label }}" class="block mb-1 text-sm font-medium text-gray-700">Departamento<span class="text-red-500">*</span></label>
+                            {{ shipping_form.department }}
+                            {% if shipping_form.department.errors %}
+                                <p class="text-xs text-red-500">{{ shipping_form.department.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ shipping_form.province.id_for_label }}" class="block mb-1 text-sm font-medium text-gray-700">Provincia<span class="text-red-500">*</span></label>
+                            {{ shipping_form.province }}
+                            {% if shipping_form.province.errors %}
+                                <p class="text-xs text-red-500">{{ shipping_form.province.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ shipping_form.district.id_for_label }}" class="block mb-1 text-sm font-medium text-gray-700">Distrito<span class="text-red-500">*</span></label>
+                            {{ shipping_form.district }}
+                            {% if shipping_form.district.errors %}
+                                <p class="text-xs text-red-500">{{ shipping_form.district.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ shipping_form.city.id_for_label }}" class="block mb-1 text-sm font-medium text-gray-700">Ciudad<span class="text-red-500">*</span></label>
+                            {{ shipping_form.city }}
+                            {% if shipping_form.city.errors %}
+                                <p class="text-xs text-red-500">{{ shipping_form.city.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ shipping_form.street.id_for_label }}" class="block mb-1 text-sm font-medium text-gray-700">Calle<span class="text-red-500">*</span></label>
+                            {{ shipping_form.street }}
+                            {% if shipping_form.street.errors %}
+                                <p class="text-xs text-red-500">{{ shipping_form.street.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ shipping_form.street_number.id_for_label }}" class="block mb-1 text-sm font-medium text-gray-700">Número<span class="text-red-500">*</span></label>
+                            {{ shipping_form.street_number }}
+                            {% if shipping_form.street_number.errors %}
+                                <p class="text-xs text-red-500">{{ shipping_form.street_number.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ shipping_form.additional_info.id_for_label }}" class="block mb-1 text-sm font-medium text-gray-700">Información adicional (ej.: apto. 201)</label>
+                            {{ shipping_form.additional_info }}
+                            {% if shipping_form.additional_info.errors %}
+                                <p class="text-xs text-red-500">{{ shipping_form.additional_info.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ shipping_form.recipient.id_for_label }}" class="block mb-1 text-sm font-medium text-gray-700">Destinatario<span class="text-red-500">*</span></label>
+                            {{ shipping_form.recipient }}
+                            {% if shipping_form.recipient.errors %}
+                                <p class="text-xs text-red-500">{{ shipping_form.recipient.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="cardholderEmail" class="block mb-1 text-sm font-medium text-gray-700">Correo<span class="text-red-500">*</span></label>
+                            <input type="email" id="cardholderEmail" name="cardholderEmail" class="p-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500" value="{{ identification_data.email|default:'' }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between mt-6">
+                        <button type="button" id="back-to-identification" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md transition duration-300 hover:bg-gray-300">
+                            VOLVER
+                        </button>
+                        <button type="submit" id="payment-btn" class="px-4 py-3 w-full font-medium text-white bg-indigo-600 rounded-lg transition-colors hover:bg-indigo-700"
+                                hx-post="{% url 'orders:create_payment' %}"
+                                hx-target="body"
+                                hx-swap="none"
+                                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                                {% if not cart.has_selected_items %}disabled{% endif %}>
+                            Pagar con Mercado Pago
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Resumen de compra -->
+        <div class="w-full lg:w-1/3">
+            <div class="p-6 bg-white rounded-lg shadow-md">
+                <h2 class="mb-4 text-xl font-semibold">Resumen de compra</h2>
+                
+                {% if selected_items %}
+                <div class="mb-6 space-y-4">
+                    {% for item in selected_items %}
+                    <div class="flex items-center pb-2 {% if not forloop.last %}border-b border-gray-200{% endif %}">
+                        <div class="overflow-hidden flex-shrink-0 w-16 h-16 rounded-md border border-gray-200">
+                            {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="object-cover object-center w-full h-full">
+                            {% else %}
+                            <div class="flex justify-center items-center w-full h-full bg-gray-200">
+                                <span class="text-xs text-gray-500">Sin imagen</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex flex-col flex-1 ml-4">
+                            <div>
+                                <div class="flex justify-between text-base font-medium text-gray-900">
+                                    <h3>{{ item.product.name }}</h3>
+                                    <p class="ml-4">{{ item.total_price|floatformat:2 }} S/</p>
+                                </div>
+                                {% if item.variant %}
+                                <p class="mt-1 text-sm text-gray-500">
+                                    {% if item.variant.color %}Color: {{ item.variant.color }}{% endif %}
+                                    {% if item.variant.color and item.variant.size %} / {% endif %}
+                                    {% if item.variant.size %}Talla: {{ item.variant.size }}{% endif %}
+                                </p>
+                                {% endif %}
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <p class="text-gray-500">Cant: {{ item.quantity }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="pt-4 border-t border-gray-200">
+                    <div class="flex justify-between mb-2 text-sm">
+                        <span>Subtotal</span>
+                        <span>{{ cart.get_total_price|floatformat:2 }} S/</span>
+                    </div>
+                    <div class="flex justify-between mb-2 text-sm">
+                        <span>Envío</span>
+                        <span>{{ cart.shipping_cost|floatformat:2 }} S/</span>
+                    </div>
+                    {% if cart.shipping_discount > 0 %}
+                    <div class="flex justify-between mb-2 text-sm text-green-600">
+                        <span>Descuento envío</span>
+                        <span>-{{ cart.shipping_discount|floatformat:2 }} S/</span>
+                    </div>
+                    {% endif %}
+                    <div class="flex justify-between mt-4 text-base font-medium">
+                        <span>Total</span>
+                        <span>{{ total|floatformat:2 }} S/</span>
+                    </div>
+                </div>
+                {% else %}
+                <div class="py-4 text-center">
+                    <p class="text-gray-500">No hay productos seleccionados</p>
+                    <a href="{% url 'cart:cart_detail' %}" class="inline-block mt-2 text-red-600 hover:text-red-800">Volver al carrito</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://sdk.mercadopago.com/js/v2"></script>
+<script>
+    const MERCADOPAGO_PUBLIC_KEY = "{{ MERCADO_PAGO_PUBLIC_KEY }}";
+</script>
+<script src="{% static 'orders/js/location_selectors.js' %}"></script>
+<script src="{% static 'orders/js/locations_menu.js' %}"></script>
+<script src="{% static 'orders/js/checkout.js' %}"></script>
+<script src="{% static 'orders/js/mercadopago.js' %}"></script>
+<meta name="csrf-token" content="{{ csrf_token }}">
+
+<style>
+    input[type="text"], input[type="email"], input[type="tel"], select {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.25rem;
+    }
+    input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus, select:focus {
+        outline: none;
+        border-color: #ef4444;
+        box-shadow: 0 0 0 1px #ef4444;
+    }
+    input[type="checkbox"] {
+        width: 1rem;
+        height: 1rem;
+    }
+</style>
+{% endblock %}

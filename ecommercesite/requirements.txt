@@ -1,0 +1,9 @@
+Django>=4.0,<5.0
+python-decouple>=3.6
+social-auth-app-django>=5.0
+mercadopago>=2.0
+mysqlclient>=2.1 # O mysql-connector-python si prefieres
+bleach>=5.0
+django-environ>=0.9 # Alternativa a python-decouple si se prefiere
+gunicorn>=20.1 # Para despliegue en producción (ejemplo)
+whitenoise>=6.0 # Para servir archivos estáticos en producción (ejemplo)

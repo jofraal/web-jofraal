@@ -1,0 +1,23 @@
+<div class="mb-4 sm:mb-5 md:mb-6">
+    <h2 class="mb-2 text-base font-semibold text-gray-900 uppercase sm:mb-3 sm:text-lg">{{ title }}</h2>
+    <div class="space-y-1 sm:space-y-2">
+        {% for item in items %}
+            {% if item %}
+                <label class="flex items-center px-2 py-1.5 text-xs text-gray-700 rounded-md transition-colors cursor-pointer hover:bg-gray-100 sm:px-3 sm:py-2 sm:text-sm">
+                    <input type="checkbox" 
+                           name="{{ param_name }}" 
+                           value="{% if is_category %}{{ item.slug }}{% else %}{{ item.value|default:item }}{% endif %}" 
+                           {% if is_category %}{% if category and category.id == item.id %}checked{% endif %}{% else %}{% if item.value|default:item in selected_values %}checked{% endif %}{% endif %} 
+                           class="mr-2 w-4 h-4 text-blue-600 rounded focus:ring-blue-500 focus:ring-offset-0">
+                    <span class="truncate">
+                        {% if is_category %}
+                            {{ item.name|capfirst }}
+                        {% else %}
+                            {{ item.label|default:item|capfirst }}
+                        {% endif %}
+                    </span>
+                </label>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>

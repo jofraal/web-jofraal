@@ -1,0 +1,114 @@
+{% load static %}
+{% block content %}
+<section class="py-8 bg-gray-50 md:py-12">
+  <div class="container px-4 mx-auto max-w-7xl">
+    <h2 class="mb-8 text-2xl font-bold text-center text-gray-800 md:text-3xl">Ofertas Especiales</h2>
+    
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 promo-container">
+      <!-- Promoción 1 -->
+      <div class="overflow-hidden bg-white rounded-xl shadow-lg opacity-0 transition-all duration-700 ease-out translate-y-16 promo-card group">
+        <a href="#" target="_blank" rel="noopener noreferrer" class="block overflow-hidden relative">
+          <img src="{% static 'images/promotion1.jpg' %}" alt="Promoción 1" loading="lazy" 
+               class="object-cover w-full h-48 transition-transform duration-300 transform sm:h-56 md:h-64 group-hover:scale-105">
+        </a>
+        <div class="p-5">
+          <h3 class="text-lg font-semibold text-gray-900 md:text-xl">Descuento del 50%</h3>
+          <p class="mt-1 text-sm text-gray-600 md:text-base">En toda la colección de verano.</p>
+          <a href="#" class="inline-block mt-3 text-sm font-medium text-blue-600 transition-colors duration-200 hover:text-blue-800 md:text-base">Ver más</a>
+        </div>
+      </div>
+
+      <!-- Promoción 2 -->
+      <div class="overflow-hidden bg-white rounded-xl shadow-lg opacity-0 transition-all duration-700 ease-out translate-y-16 promo-card group">
+        <a href="#" target="_blank" rel="noopener noreferrer" class="block overflow-hidden relative">
+          <img src="{% static 'images/promotion2.jpg' %}" alt="Promoción 2" loading="lazy" 
+               class="object-cover w-full h-48 transition-transform duration-300 transform sm:h-56 md:h-64 group-hover:scale-105">
+        </a>
+        <div class="p-5">
+          <h3 class="text-lg font-semibold text-gray-900 md:text-xl">Envío Gratis</h3>
+          <p class="mt-1 text-sm text-gray-600 md:text-base">En compras superiores a $50.</p>
+          <a href="#" class="inline-block mt-3 text-sm font-medium text-blue-600 transition-colors duration-200 hover:text-blue-800 md:text-base">Ver más</a>
+        </div>
+      </div>
+
+      <!-- Promoción 3 -->
+      <div class="overflow-hidden bg-white rounded-xl shadow-lg opacity-0 transition-all duration-700 ease-out translate-y-16 promo-card group">
+        <a href="#" target="_blank" rel="noopener noreferrer" class="block overflow-hidden relative">
+          <img src="{% static 'images/promotion3.jpg' %}" alt="Promoción 3" loading="lazy" 
+               class="object-cover w-full h-48 transition-transform duration-300 transform sm:h-56 md:h-64 group-hover:scale-105">
+        </a>
+        <div class="p-5">
+          <h3 class="text-lg font-semibold text-gray-900 md:text-xl">Nueva Colección</h3>
+          <p class="mt-1 text-sm text-gray-600 md:text-base">Explora nuestra nueva línea de productos.</p>
+          <a href="#" class="inline-block mt-3 text-sm font-medium text-blue-600 transition-colors duration-200 hover:text-blue-800 md:text-base">Ver más</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Estilos personalizados con Tailwind y animaciones -->
+<style>
+  .promo-container {
+    max-width: 100%;
+  }
+
+  .promo-card {
+    transition-delay: 0.2s; /* Delay ligero para una entrada escalonada */
+  }
+
+  /* Estado visible */
+  .is-visible .promo-card {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (min-width: 640px) {
+    .promo-card:nth-child(2) {
+      transition-delay: 0.4s; /* Delay diferente para el segundo elemento */
+    }
+  }
+
+  @media (min-width: 768px) {
+    .promo-card:nth-child(3) {
+      transition-delay: 0.6s; /* Delay para el tercer elemento en desktop */
+    }
+  }
+</style>
+
+<!-- Script para la animación -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const promoSection = document.querySelector('.promo-container');
+    const promoCards = promoSection.querySelectorAll('.promo-card');
+    let isAnimated = false;
+
+    function checkVisibility() {
+      const rect = promoSection.getBoundingClientRect();
+      const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+      const triggerPoint = windowHeight * 0.85; // Activa cuando el 85% es visible
+
+      if (rect.top <= triggerPoint && rect.bottom >= 0 && !isAnimated) {
+        promoSection.classList.add('is-visible');
+        isAnimated = true;
+      }
+    }
+
+    // Optimización del scroll con debounce
+    let ticking = false;
+    function handleScroll() {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          checkVisibility();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', checkVisibility);
+    checkVisibility();
+  });
+</script>
+{% endblock %}

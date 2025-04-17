@@ -1,0 +1,117 @@
+{% load static %}
+
+<section class="py-8 bg-gray-100 w-screen -mx-[calc(50vw-50%)] relative">
+    <h2 class="mb-6 text-2xl font-bold text-center text-gray-800 md:text-3xl">Productos Destacados</h2>
+    <div class="relative overflow-hidden bg-gradient-to-r from-blue-100 to-blue-200 w-screen h-[20rem] sm:h-[24rem] md:h-[28rem] lg:h-96">
+        <!-- Slider Container -->
+        <div class="flex h-full transition-transform duration-500 ease-in-out slider-track">
+            {% for category, products in category_products.items %}
+                <div class="flex flex-col flex-shrink-0 justify-between items-center px-4 w-full h-full md:flex-row sm:px-8">
+                    <!-- Text Container -->
+                    <div class="ml-8 space-y-6 w-full text-center md:w-1/3 md:text-left sm:ml-10 md:ml-12">
+                        <h1 class="text-2xl font-medium leading-tight text-gray-800 capitalize sm:text-3xl md:text-4xl">
+                            {{ category }}
+                        </h1>
+                        <a href="{% url 'products:product_list_by_category' category %}" 
+                           class="inline-block px-4 py-2 text-sm font-bold text-gray-800 bg-lime-400 rounded-full sm:text-base sm:px-6 hover:bg-lime-500">
+                            VER MÁS
+                        </a>
+                        <!-- Brand Container (Fijo) -->
+                        <div class="mx-auto w-full">
+                            <div class="flex flex-wrap gap-4 justify-center items-center">
+                                {% for brand in brands %}
+                                    <img src="{% if brand.logo %}{{ brand.logo.url }}{% else %}{% static 'images/placeholder.png' %}{% endif %}" 
+                                         alt="{{ brand.name }}" 
+                                         class="flex-shrink-0 w-16 h-6 opacity-80 transition-opacity sm:w-20 sm:h-8 md:w-24 md:h-10 hover:opacity-100">
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Products Container (Fijo por categoría) -->
+                    <div class="mt-6 w-full md:w-2/3 md:mt-0">
+                        <div class="flex flex-wrap gap-4 justify-center">
+                            {% for product in products %}
+                                <a href="{% url 'products:product_list_by_category' category %}" 
+                                   class="relative flex-shrink-0 w-36 transition-all duration-300 ease-in-out transform sm:w-44 md:w-60 hover:-translate-y-2">
+                                    <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/placeholder.png' %}{% endif %}" 
+                                         alt="{{ product.name }}" 
+                                         class="object-cover w-full h-32 drop-shadow-lg sm:h-40 md:h-48">
+                                    <div class="absolute -bottom-4 left-1/2 w-16 h-4 bg-blue-300 rounded -translate-x-1/2 sm:w-20 sm:h-6 md:w-24 md:h-8"></div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <!-- Navigation Arrows -->
+        <button class="flex absolute left-2 top-1/2 justify-center items-center w-8 h-8 rounded-full shadow-md transition-all -translate-y-1/2 prev-slide bg-white/80 hover:bg-white">
+            <span class="text-lg text-gray-800">←</span>
+        </button>
+        <button class="flex absolute right-2 top-1/2 justify-center items-center w-8 h-8 rounded-full shadow-md transition-all -translate-y-1/2 next-slide bg-white/80 hover:bg-white">
+            <span class="text-lg text-gray-800">→</span>
+        </button>
+        <!-- Slider Dots -->
+        <div class="flex absolute bottom-5 left-1/2 gap-2 -translate-x-1/2 slide-dots">
+            {% for category in category_products.keys %}
+                <span class="h-2 w-2 sm:h-2.5 sm:w-2.5 cursor-pointer transition-colors hover:bg-gray-600 {% if forloop.first %}bg-gray-800{% else %}bg-gray-500/30{% endif %} rounded-full"></span>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const sliderTrack = document.querySelector('.slider-track');
+        const slides = document.querySelectorAll('.slider-track > div');
+        const prevBtn = document.querySelector('.prev-slide');
+        const nextBtn = document.querySelector('.next-slide');
+        const dots = document.querySelectorAll('.slide-dots span');
+        let slideIndex = 0;
+        const totalSlides = slides.length;
+
+        function updateSlider() {
+            sliderTrack.style.transform = `translateX(-${slideIndex * 100}%)`;
+            dots.forEach((dot, idx) => {
+                dot.classList.toggle('bg-gray-800', idx === slideIndex);
+                dot.classList.toggle('bg-gray-500/30', idx !== slideIndex);
+            });
+        }
+
+        nextBtn.addEventListener('click', () => {
+            slideIndex++;
+            if (slideIndex >= totalSlides) {
+                slideIndex = 0;
+                sliderTrack.style.transition = 'none';
+                updateSlider();
+                setTimeout(() => {
+                    sliderTrack.style.transition = 'transform 0.5s ease-in-out';
+                }, 50);
+            }
+            updateSlider();
+        });
+
+        prevBtn.addEventListener('click', () => {
+            slideIndex--;
+            if (slideIndex < 0) {
+                slideIndex = totalSlides - 1;
+                sliderTrack.style.transition = 'none';
+                updateSlider();
+                setTimeout(() => {
+                    sliderTrack.style.transition = 'transform 0.5s ease-in-out';
+                }, 50);
+            }
+            updateSlider();
+        });
+
+        dots.forEach((dot, idx) => {
+            dot.addEventListener('click', () => {
+                slideIndex = idx;
+                updateSlider();
+            });
+        });
+
+        setInterval(() => nextBtn.click(), 5000); // Cambia cada 5 segundos automáticamente
+        updateSlider(); // Inicializar
+    });
+</script>

@@ -1,0 +1,79 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}John Holden{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'dist/output.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/notifications.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <meta name="description" content="Tienda virtual con los mejores productos al mejor precio.">
+    <meta name="keywords" content="tienda, productos, ecommerce, descuentos">
+    <meta name="author" content="Jonathan Fraal">
+    <!-- Agregar HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{% static 'js/notifications.js' %}"></script>
+    <!-- Estilos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Configuración del token CSRF para HTMX -->
+    {% csrf_token %}
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <script>
+        const csrfToken = '{{ csrf_token }}';
+        const mercadopagoConfig = {{ mercadopago_config|safe }}; // Configuración segura de Mercado Pago
+    </script>
+    <style>
+        .playfair { font-family: 'Playfair Display', serif; }
+        .transition-300 { transition: all 0.3s ease; }
+    </style>
+    <link rel="stylesheet" href="{% static 'css/starability.css' %}">
+</head>
+<body class="flex flex-col min-h-screen text-gray-800 bg-gray-100">
+    <!-- Encabezado -->
+    <header class="shadow-md">
+        {% include 'core/includes/nav.html' %}
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="container flex-grow py-8 mx-auto">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Pie de Página -->
+    {% include 'core/includes/footer.html' %}
+
+    <!-- Configuración de HTMX para incluir el token CSRF en las solicitudes -->
+    <script>
+        document.body.addEventListener('htmx:configRequest', (event) => {
+            // Obtener el token CSRF de la meta etiqueta
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            if (token) {
+                // Asegurar que el token CSRF se incluya en todas las solicitudes HTMX
+                event.detail.headers['X-CSRFToken'] = token;
+            }
+            
+            // Asegurar que las solicitudes DELETE se procesen correctamente
+            if (event.detail.verb === 'delete') {
+                // Forzar el método DELETE para que Django lo procese correctamente
+                event.detail.headers['X-HTTP-Method-Override'] = 'DELETE';
+            }
+        });
+
+        // Inicializar HTMX después de que la página se cargue completamente
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar si hay elementos con atributos HTMX que necesiten ser reinicializados
+            if (typeof htmx !== 'undefined') {
+                htmx.process(document.body);
+            }
+        });
+    </script>
+    <!-- Bloque para scripts adicionales -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

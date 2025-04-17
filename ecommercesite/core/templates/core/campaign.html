@@ -1,0 +1,259 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Dior Homme - El nuevo perfume. Descubre la expresión de una masculinidad moderna.">
+  <title>Dior Homme - Campaña</title>
+</head>
+<body class="min-h-screen bg-white">
+  <div class="relative w-full h-[90vh] md:h-[85vh] mx-auto max-w-screen-2xl" id="campaign-container">
+    <div class="flex sticky top-0 justify-center items-center h-full" id="video-section">
+      <div class="flex overflow-hidden relative gap-2 w-full h-full xs:gap-3 sm:gap-4 md:gap-5" id="columns-container">
+        <!-- Columna Izquierda -->
+        <div class="column column-left h-full w-0 max-w-[45%] sm:max-w-[35%] md:max-w-[30%] lg:max-w-[35%] opacity-0 translate-y-full scale-95 transition-all duration-1000 ease-[cubic-bezier(0.34,1.56,0.64,1)] will-change-[transform,opacity,width,scale]">
+          <img src="{% static 'images/promotion1.jpg' %}" alt="Dior Homme - Expresión de masculinidad moderna" 
+               class="object-cover w-full h-full" loading="lazy" decoding="async" width="800" height="1200">
+          <div class="absolute inset-x-0 bottom-2 px-2 text-center text-white pointer-events-none xs:bottom-3 sm:bottom-4 md:bottom-6 xs:px-3 sm:px-4 md:px-6">
+            <p class="text-xs font-medium drop-shadow-md xs:text-sm sm:text-base md:text-lg">La expresión de una masculinidad moderna</p>
+            <a href="#" class="inline-block mt-1 xs:mt-2 sm:mt-3 md:mt-4 px-2 xs:px-3 sm:px-4 md:px-5 py-1 xs:py-1.5 sm:py-2 text-[10px] xs:text-xs sm:text-sm md:text-base text-white border border-white rounded-md hover:bg-white hover:text-black transition-colors duration-300 pointer-events-auto">Descubrir</a>
+          </div>
+        </div>
+
+        <!-- Columna Central (Video) -->
+        <div class="column column-center flex-1 h-full transition-all duration-1000 ease-[cubic-bezier(0.34,1.56,0.64,1)] delay-200 will-change-[flex-basis]">
+          <video autoplay muted loop playsinline preload="metadata" class="object-cover w-full h-full" aria-label="Video promocional de Dior Homme">
+            <source src="{% static 'videos/video2.mp4' %}" type="video/mp4">
+            <p>Tu navegador no soporta videos HTML5.</p>
+          </video>
+          <div class="absolute inset-x-0 bottom-2 px-2 text-center text-white pointer-events-none xs:bottom-3 sm:bottom-4 md:bottom-6 xs:px-3 sm:px-4 md:px-6">
+            <p class="text-sm font-semibold drop-shadow-md xs:text-base sm:text-lg md:text-xl">Dior Homme</p>
+            <p class="mt-0.5 text-xs drop-shadow-md xs:mt-1 sm:mt-1.5 md:mt-2 xs:text-sm sm:text-base md:text-lg">El nuevo perfume</p>
+            <a href="#" class="inline-block mt-1 xs:mt-2 sm:mt-3 md:mt-4 px-2 xs:px-3 sm:px-4 md:px-5 py-1 xs:py-1.5 sm:py-2 text-[10px] xs:text-xs sm:text-sm md:text-base text-white border border-white rounded-md hover:bg-white hover:text-black transition-colors duration-300 pointer-events-auto">Descubrir</a>
+          </div>
+        </div>
+
+        <!-- Columna Derecha -->
+        <div class="column column-right h-full w-0 max-w-[45%] sm:max-w-[35%] md:max-w-[30%] lg:max-w-[35%] opacity-0 translate-y-full scale-95 transition-all duration-1000 ease-[cubic-bezier(0.34,1.56,0.64,1)] will-change-[transform,opacity,width,scale]">
+          <img src="{% static 'images/promotion2.jpg' %}" alt="Dior Homme - Entre la fuerza y la delicadeza" 
+               class="object-cover w-full h-full" loading="lazy" decoding="async" width="800" height="1200">
+          <div class="absolute inset-x-0 bottom-2 px-2 text-center text-white pointer-events-none xs:bottom-3 sm:bottom-4 md:bottom-6 xs:px-3 sm:px-4 md:px-6">
+            <p class="text-xs font-medium drop-shadow-md xs:text-sm sm:text-base md:text-lg">Entre la fuerza y la delicadeza</p>
+            <a href="#" class="inline-block mt-1 xs:mt-2 sm:mt-3 md:mt-4 px-2 xs:px-3 sm:px-4 md:px-5 py-1 xs:py-1.5 sm:py-2 text-[10px] xs:text-xs sm:text-sm md:text-base text-white border border-white rounded-md hover:bg-white hover:text-black transition-colors duration-300 pointer-events-auto">Descubrir</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estilos personalizados -->
+  <style>
+    @media (max-width: 479px) {
+      .column-left, .column-right {
+        max-width: 100%;
+        height: 30%;
+      }
+      .column-center {
+        flex-basis: 100%;
+        height: 60%;
+      }
+      #columns-container {
+        flex-direction: column;
+        gap: 0;
+      }
+      .is-visible .column-left, .is-visible .column-right {
+        width: 100%;
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        transition-delay: 0s;
+      }
+      .is-visible .column-center {
+        flex-basis: 100%;
+        transition-delay: 0.2s;
+      }
+    }
+
+    @media (min-width: 480px) and (max-width: 639px) {
+      .column-left, .column-right {
+        max-width: 100%;
+        height: 33.33%;
+      }
+      .column-center {
+        flex-basis: 100%;
+        height: 66.67%;
+      }
+      #columns-container {
+        flex-direction: column;
+        gap: 0;
+      }
+      .is-visible .column-left, .is-visible .column-right {
+        width: 100%;
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        transition-delay: 0s;
+      }
+      .is-visible .column-center {
+        flex-basis: 100%;
+        transition-delay: 0.2s;
+      }
+    }
+
+    @media (min-width: 640px) {
+      .is-visible .column-left, .is-visible .column-right {
+        width: 35%;
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        transition-delay: 0s;
+      }
+      .is-visible .column-center {
+        flex-basis: 30%;
+        transition-delay: 0.2s;
+      }
+    }
+  </style>
+
+  <!-- Script optimizado -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Cachear elementos DOM para mejor rendimiento
+      const els = {
+        container: document.getElementById('campaign-container'),
+        columns: document.getElementById('columns-container'),
+        center: document.querySelector('.column-center'),
+        left: document.querySelector('.column-left'),
+        right: document.querySelector('.column-right')
+      };
+      
+      // Si algún elemento no existe, salir para evitar errores
+      if (!els.container || !els.columns || !els.center || !els.left || !els.right) return;
+
+      // Configuración responsiva
+      const getConfig = () => ({
+        animationRange: window.innerHeight * 0.6,
+        maxWidthPercentage: window.innerWidth < 640 ? 100 : 35,
+        centerShrinkFactor: window.innerWidth < 640 ? 0 : 70
+      });
+
+      let config = getConfig();
+      let ticking = false;
+      let animationTimeout;
+      let isIntersecting = false;
+      
+      // Usar IntersectionObserver para mejor rendimiento
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          isIntersecting = entries[0].isIntersecting;
+          if (isIntersecting) {
+            if (!els.columns.classList.contains('is-visible')) {
+              clearTimeout(animationTimeout);
+              animationTimeout = setTimeout(() => {
+                els.columns.classList.add('is-visible');
+                animateColumns(1);
+              }, 100);
+            }
+          } else {
+            if (els.columns.classList.contains('is-visible')) {
+              clearTimeout(animationTimeout);
+              els.columns.classList.remove('is-visible');
+              resetColumns();
+            }
+          }
+        }, {
+          threshold: 0.1
+        });
+        
+        observer.observe(els.container);
+      }
+
+      const animateColumns = (progress) => {
+        // Aplicar estilos con requestAnimationFrame para mejor rendimiento
+        requestAnimationFrame(() => {
+          const sideStyles = {
+            width: `${progress * config.maxWidthPercentage}%`,
+            opacity: progress,
+            transform: `translateY(${(1 - progress) * 100}%) scale(${0.95 + (progress * 0.05)})`
+          };
+
+          Object.assign(els.left.style, sideStyles);
+          Object.assign(els.right.style, sideStyles);
+          
+          if (window.innerWidth >= 640) {
+            els.center.style.flexBasis = `${100 - (progress * config.centerShrinkFactor)}%`;
+          }
+        });
+      };
+
+      const resetColumns = () => {
+        requestAnimationFrame(() => {
+          els.left.style.width = '0%';
+          els.left.style.opacity = '0';
+          els.left.style.transform = 'translateY(100%) scale(0.95)';
+          els.right.style.width = '0%';
+          els.right.style.opacity = '0';
+          els.right.style.transform = 'translateY(100%) scale(0.95)';
+          if (window.innerWidth >= 640) {
+            els.center.style.flexBasis = '100%';
+          }
+        });
+      };
+
+      // Fallback para navegadores sin IntersectionObserver
+      if (!('IntersectionObserver' in window)) {
+        const updateAnimation = () => {
+          const rect = els.container.getBoundingClientRect();
+          const windowHeight = window.innerHeight;
+
+          const isFullyVisible = rect.bottom <= windowHeight && rect.top >= 0;
+          const progress = isFullyVisible ? 
+            Math.min(Math.max((windowHeight - rect.top) / config.animationRange, 0), 1) : 
+            0;
+
+          if (isFullyVisible && !els.columns.classList.contains('is-visible')) {
+            clearTimeout(animationTimeout);
+            animationTimeout = setTimeout(() => {
+              els.columns.classList.add('is-visible');
+              animateColumns(progress);
+            }, 100);
+          } else if (!isFullyVisible && els.columns.classList.contains('is-visible')) {
+            clearTimeout(animationTimeout);
+            els.columns.classList.remove('is-visible');
+            resetColumns();
+          } else if (els.columns.classList.contains('is-visible')) {
+            animateColumns(progress);
+          }
+
+          ticking = false;
+        };
+
+        const handleScroll = () => {
+          if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(updateAnimation);
+          }
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        requestAnimationFrame(updateAnimation);
+      }
+
+      // Manejar cambios de tamaño de ventana
+      const handleResize = () => {
+        config = getConfig();
+        if (els.columns.classList.contains('is-visible')) {
+          animateColumns(1);
+        }
+      };
+
+      // Usar debounce para evitar múltiples llamadas durante el redimensionamiento
+      let resizeTimeout;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(handleResize, 150);
+      }, { passive: true });
+    });
+  </script>
+</body>
+</html>
+</body>

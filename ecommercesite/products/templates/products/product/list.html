@@ -1,0 +1,128 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% block title %}Productos{% endblock %}
+
+{% block content %}
+<div class="container px-4 py-6 mx-auto min-h-screen bg-gray-50 sm:py-8 lg:py-10">
+    <h1 class="mb-6 text-2xl font-bold text-left text-red-600 uppercase sm:mb-8 sm:text-3xl md:text-4xl">Productos</h1>
+
+    <div class="flex flex-col gap-6 sm:gap-8 md:flex-row md:flex-wrap lg:flex-nowrap">
+        <!-- Sidebar: Filtros y Categorías -->
+        <aside class="overflow-y-auto sticky top-4 self-start p-4 w-full max-h-screen bg-white rounded-xl shadow-md sm:p-6 md:w-1/3 lg:w-1/4">
+            <form id="filter-form" method="get" action="{% url 'products:product_list' %}">
+                <!-- Categorías -->
+                {% include "products/product/_filter_section.html" with title="Categorías" items=categories param_name="category" selected_values=category is_category=True %}
+
+                <!-- Precio -->
+                {% include "products/product/_filter_section.html" with title="Precio" items=price_ranges param_name="price" selected_values=selected_prices %}
+
+                <!-- Color -->
+                {% include "products/product/_filter_section.html" with title="Color" items=colors param_name="color" selected_values=selected_colors %}
+
+                <!-- Género -->
+                {% include "products/product/_filter_section.html" with title="Género" items=genders param_name="gender" selected_values=selected_genders %}
+
+                <!-- Talla -->
+                {% include "products/product/_filter_section.html" with title="Talla" items=sizes param_name="size" selected_values=selected_sizes %}
+            </form>
+        </aside>
+
+        <!-- Main Content: Productos -->
+        <main class="w-full md:w-2/3 lg:w-3/4">
+            <div class="flex sticky top-0 z-10 flex-wrap gap-2 justify-between items-center py-2 mb-4 bg-gray-50 sm:mb-6">
+                <div id="total-products-count" class="text-xs font-medium text-gray-600 sm:text-sm">{{ products|length }} productos encontrados</div>
+                <form id="sort-form" method="get" action="{% url 'products:product_list' %}" class="flex gap-1 items-center sm:gap-2">
+                    <label for="sort" class="text-xs text-gray-500 sm:text-sm">Ordenar por:</label>
+                    <select id="sort" name="sort_by" class="p-1 text-xs rounded-md border-gray-300 sm:text-sm sm:p-2 focus:ring-blue-500 focus:border-blue-500" onchange="this.form.submit()">
+                        <option value="" {% if not sort_by %}selected{% endif %}>Más vendidos</option>
+                        <option value="price_low" {% if sort_by == "price_low" %}selected{% endif %}>Precio: Menor a Mayor</option>
+                        <option value="price_high" {% if sort_by == "price_high" %}selected{% endif %}>Precio: Mayor a Menor</option>
+                        <option value="newest" {% if sort_by == "newest" %}selected{% endif %}>Más recientes</option>
+                    </select>
+                    {% for gender in selected_genders %}
+                        <input type="hidden" name="gender" value="{{ gender }}">
+                    {% endfor %}
+                    {% for color in selected_colors %}
+                        <input type="hidden" name="color" value="{{ color }}">
+                    {% endfor %}
+                    {% for size in selected_sizes %}
+                        <input type="hidden" name="size" value="{{ size }}">
+                    {% endfor %}
+                    {% for price in selected_prices %}
+                        <input type="hidden" name="price" value="{{ price }}">
+                    {% endfor %}
+                    {% for category in selected_categories %}
+                        <input type="hidden" name="category" value="{{ category }}">
+                    {% endfor %}
+                </form>
+            </div>
+
+            <div id="product-grid" class="grid grid-cols-1 gap-3 xs:grid-cols-2 sm:gap-4 md:gap-5 lg:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+                {% for product in products %}
+                <article class="flex overflow-hidden relative flex-col h-full bg-white rounded-xl shadow-md transition-transform duration-300 hover:shadow-lg hover:-translate-y-1">
+                    <a href="{% url 'products:product_detail' product.id product.slug %}" class="block">
+                        <div class="overflow-hidden relative w-full h-36 xs:h-40 sm:h-48 md:h-56 lg:h-64">
+                            <img src="{{ product.get_image_url }}" alt="{{ product.name }}" class="object-cover w-full h-full transition-transform duration-300 transform hover:scale-105" loading="lazy">
+                            {% if product.free_shipping %}
+                                <span class="absolute top-1 left-1 px-1 py-0.5 text-xs font-semibold text-white bg-blue-600 rounded-full sm:top-2 sm:left-2 sm:px-2 sm:py-1">Envío Gratis</span>
+                            {% endif %}
+                            {% if product.discount_percentage > 0 %}
+                                <span class="absolute right-1 bottom-1 px-1 py-0.5 text-xs font-semibold text-white bg-red-600 sm:right-2 sm:bottom-2 sm:px-2 sm:py-1">{{ product.discount_percentage }}% DSCTO</span>
+                            {% endif %}
+                        </div>
+                        <div class="flex flex-col flex-grow p-2 text-center sm:p-3 md:p-4">
+                            <h3 class="text-xs font-semibold text-gray-900 uppercase xs:text-sm sm:text-base line-clamp-2">{{ product.name }}</h3>
+                            <p class="text-xs text-gray-500 uppercase">{{ product.brand|default:"John Holden" }}</p>
+                            <div class="flex gap-1 justify-center items-center mt-1 sm:mt-2 sm:gap-2">
+                                {% if product.discount_percentage > 0 %}
+                                    <span class="text-xs text-gray-400 line-through sm:text-sm">S/ {{ product.original_price|floatformat:2 }}</span>
+                                    <span class="text-sm font-bold text-red-600 sm:text-lg">S/ {{ product.discounted_price|floatformat:2 }}</span>
+                                {% else %}
+                                    <span class="text-sm font-bold text-red-600 sm:text-lg">S/ {{ product.price|floatformat:2 }}</span>
+                                {% endif %}
+                            </div>
+                            {% if product.has_free_gift %}
+                                <span class="inline-block px-1 py-0.5 mt-1 text-xs font-semibold text-white bg-gray-800 rounded-full sm:px-2 sm:py-1 sm:mt-2">Corbata Gratis</span>
+                            {% endif %}
+                            <button class="px-2 py-1 mt-1 mt-auto w-full text-xs text-white bg-black rounded transition-colors add-to-cart-btn xs:py-1.5 sm:px-3 sm:py-2 sm:text-sm md:px-4 hover:bg-gray-800 sm:mt-2"
+                                    data-product-id="{{ product.id }}"
+                                    {% if product.variants.exists %}data-variant-id="{{ product.variants.first.id }}"{% else %}data-variant-id=""{% endif %}>
+                                Agregar al Carrito
+                            </button>
+                        </div>
+                    </a>
+                </article>
+                {% empty %}
+                <div class="col-span-full py-8 text-center text-gray-600">
+                    <p class="text-lg">No hay productos disponibles.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterForm = document.getElementById('filter-form');
+        const checkboxes = filterForm.querySelectorAll('input[type="checkbox"]');
+
+        console.log('Formulario encontrado:', filterForm);
+        console.log('Checkboxes encontrados:', checkboxes.length);
+
+        if (checkboxes.length === 0) {
+            console.error('No se encontraron checkboxes en el formulario');
+            return;
+        }
+
+        checkboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+                console.log('Checkbox cambiado:', checkbox.name, checkbox.value, checkbox.checked);
+                filterForm.submit();
+            });
+        });
+    });
+</script>
+{% endblock %}
