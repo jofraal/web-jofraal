@@ -140,6 +140,7 @@ class ProductVariant(models.Model):
     discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=0, help_text='Porcentaje de descuento (0-100)')
     discount_start_date = models.DateTimeField(blank=True, null=True, help_text='Fecha de inicio de la promoción')
     discount_end_date = models.DateTimeField(blank=True, null=True, help_text='Fecha de fin de la promoción')
+    image = models.ImageField(upload_to='product_variants/', blank=True, null=True)
 
     def has_discount(self):
         now = timezone.now()

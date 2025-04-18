@@ -1,6 +1,7 @@
 # Dependencias principales
 Django>=4.0,<5.0
 python-decouple>=3.6
+python-dotenv>=1.0.0
 social-auth-app-django>=5.0
 mercadopago>=2.0
 
