@@ -1,9 +1,38 @@
+# Dependencias principales
 Django>=4.0,<5.0
 python-decouple>=3.6
 social-auth-app-django>=5.0
 mercadopago>=2.0
-mysqlclient>=2.1 # O mysql-connector-python si prefieres
+
+# Base de datos
+mysqlclient>=2.1
+pymysql>=1.0.2
+
+# Seguridad y procesamiento de texto
 bleach>=5.0
-django-environ>=0.9 # Alternativa a python-decouple si se prefiere
-gunicorn>=20.1 # Para despliegue en producción (ejemplo)
-whitenoise>=6.0 # Para servir archivos estáticos en producción (ejemplo)
+
+# Manejo de imágenes y archivos
+Pillow>=9.0.0
+
+# Alternativas de configuración
+django-environ>=0.9
+
+# Despliegue en producción
+gunicorn>=20.1
+whitenoise>=6.0
+dj-database-url>=1.0.0
+
+# Formularios y UI
+django-crispy-forms>=1.14.0
+
+# Caché y optimización
+django-redis>=5.2.0
+
+# CORS y seguridad
+django-cors-headers>=3.13.0
+
+# Compresión de archivos estáticos
+django-compressor>=4.0
+
+# Monitoreo y logging
+django-debug-toolbar>=3.5.0
