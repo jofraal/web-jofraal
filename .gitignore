@@ -30,9 +30,9 @@ tailwind.config.js.map
 *.css.map
 
 # Archivos estáticos y de medios
-staticfiles/
-media/
-mediafiles/
+#staticfiles/
+#media/
+#mediafiles/
 
 # Archivos de base de datos y scripts SQL
 *.sql
