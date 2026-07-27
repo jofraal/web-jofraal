@@ -1,13 +1,15 @@
 from django import forms
 from .models import Order
-from .locations import PERU_LOCATIONS, get_provinces, get_districts, get_departments
+import logging
+
+logger = logging.getLogger(__name__)
 
 class BaseLocationForm(forms.ModelForm):
     class Meta:
         model = Order
         fields = [
             'department', 'province', 'district', 'city', 'address', 'street',
-            'street_number', 'additional_info', 'recipient', 'postal_code', 'country'
+            'street_number', 'additional_info', 'country', 'latitude', 'longitude'
         ]
         widgets = {
             'department': forms.Select(
@@ -23,35 +25,67 @@ class BaseLocationForm(forms.ModelForm):
                 attrs={'id': 'id_district', 'class': 'px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500'}
             ),
             'city': forms.TextInput(attrs={'class': 'px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500', 'placeholder': 'Ciudad'}),
-            'address': forms.TextInput(attrs={'class': 'px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500'}),
+            'address': forms.TextInput(attrs={'class': 'px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500', 'placeholder': 'Dirección completa'}),
             'street': forms.TextInput(attrs={'class': 'px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500'}),
             'street_number': forms.TextInput(attrs={'class': 'px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500'}),
             'additional_info': forms.TextInput(attrs={'class': 'px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500'}),
-            'recipient': forms.TextInput(attrs={'class': 'px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500'}),
-            'postal_code': forms.TextInput(attrs={'class': 'px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500'}),
             'country': forms.TextInput(attrs={'class': 'px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500'}),
+            'latitude': forms.HiddenInput(),
+            'longitude': forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        departments = get_departments()
-        self.fields['department'].choices = [('', 'Seleccione un departamento')] + [(dept, dept) for dept in departments]
+        from .locations import get_departments, get_provinces, get_districts
 
-        if 'department' in self.data or self.initial.get('department'):
+        try:
+            departments = get_departments()
+            logger.info(f"Departamentos cargados: {departments}")
+            self.fields['department'].choices = [('', 'Seleccione un departamento')] + [(dept, dept) for dept in departments]
+        except Exception as e:
+            logger.error(f"Error al cargar departamentos: {e}")
+            self.fields['department'].choices = [('', 'Seleccione un departamento')]
+
+        department = None
+        if 'department' in self.data:
+            department = self.data.get('department')
+            logger.info(f"Departamento seleccionado desde POST: {department}")
+        elif self.initial.get('department'):
+            department = self.initial.get('department')
+            logger.info(f"Departamento seleccionado desde initial: {department}")
+        elif self.instance and self.instance.department:
+            department = self.instance.department
+            logger.info(f"Departamento seleccionado desde instancia: {department}")
+
+        if department:
             try:
-                department = self.data.get('department', self.initial.get('department'))
                 provinces = get_provinces(department)
+                logger.info(f"Provincias cargadas para {department}: {provinces}")
                 self.fields['province'].choices = [('', 'Seleccione una provincia')] + [(prov, prov) for prov in provinces]
-            except (ValueError, TypeError) as e:
+            except Exception as e:
+                logger.error(f"Error al cargar provincias para {department}: {e}")
                 self.fields['province'].choices = [('', 'Seleccione una provincia')]
 
-        if 'province' in self.data or self.initial.get('province'):
+        province = None
+        if 'province' in self.data:
+            province = self.data.get('province')
+            logger.info(f"Provincia seleccionada desde POST: {province}")
+        elif self.initial.get('province'):
+            province = self.initial.get('province')
+            logger.info(f"Provincia seleccionada desde initial: {province}")
+        elif self.instance and self.instance.province:
+            province = self.instance.province
+            logger.info(f"Provincia seleccionada desde instancia: {province}")
+
+        if department and province:
             try:
-                department = self.data.get('department', self.initial.get('department'))
-                province = self.data.get('province', self.initial.get('province'))
-                districts = get_districts(department, province)
+                districts_data = get_districts(department, province)
+                districts = [dist.strip() for dist in districts_data] if isinstance(districts_data, list) else []
+                logger.info(f"Distritos cargados para {province}: {districts}")
                 self.fields['district'].choices = [('', 'Seleccione un distrito')] + [(dist, dist) for dist in districts]
-            except (ValueError, TypeError) as e:
+                self.fields['district'].widget.attrs['disabled'] = False
+            except Exception as e:
+                logger.error(f"Error al cargar distritos para {department}, {province}: {e}")
                 self.fields['district'].choices = [('', 'Seleccione un distrito')]
 
     def clean(self):
@@ -62,29 +96,53 @@ class BaseLocationForm(forms.ModelForm):
         city = cleaned_data.get('city')
         street = cleaned_data.get('street')
         street_number = cleaned_data.get('street_number')
-        recipient = cleaned_data.get('recipient')
-        
-        # Validar ubicaciones
+        latitude = cleaned_data.get('latitude')
+        longitude = cleaned_data.get('longitude')
+        address = cleaned_data.get('address')
+
+        from .locations import get_departments, get_provinces, get_districts
+
+        # Validar que address no sea "Pendiente"
+        if address and address.lower() == 'pendiente':
+            self.add_error('address', 'La dirección no puede ser "Pendiente".')
+
         if department and department not in get_departments():
             self.add_error('department', 'Departamento no válido.')
         if department and province and province not in get_provinces(department):
             self.add_error('province', 'Provincia no válida para el departamento seleccionado.')
-        if department and province and district and district not in get_districts(department, province):
-            self.add_error('district', 'Distrito no válido para la provincia seleccionada.')
-            
-        # Validar campos obligatorios de dirección
+        if department and province and district:
+            districts_data = get_districts(department, province)
+            districts = [dist.strip() for dist in districts_data] if isinstance(districts_data, list) else []
+            logger.info(f"Distritos recargados en clean para {province}: {districts}")
+            if district not in districts:
+                self.add_error('district', 'Distrito no válido para la provincia seleccionada.')
+            else:
+                self.fields['district'].choices = [('', 'Seleccione un distrito')] + [(dist, dist) for dist in districts]
+
         if not city:
             self.add_error('city', 'La ciudad es obligatoria.')
         if not street:
             self.add_error('street', 'La calle es obligatoria.')
         if not street_number:
             self.add_error('street_number', 'El número es obligatorio.')
-        if not recipient:
-            self.add_error('recipient', 'El destinatario es obligatorio.')
-            
+
+        if latitude is None or longitude is None or latitude == '' or longitude == '':
+            self.add_error('latitude', 'La latitud es obligatoria.')
+            self.add_error('longitude', 'La longitud es obligatoria.')
+        else:
+            try:
+                lat = float(latitude)
+                lng = float(longitude)
+                if not (-90 <= lat <= 90):
+                    self.add_error('latitude', 'La latitud debe estar entre -90 y 90.')
+                if not (-180 <= lng <= 180):
+                    self.add_error('longitude', 'La longitud debe estar entre -180 y 180.')
+            except Exception:
+                self.add_error('latitude', 'La latitud debe ser un número válido.')
+                self.add_error('longitude', 'La longitud debe ser un número válido.')
+
         return cleaned_data
 
-# Resto de los formularios sin cambios
 class OrderCreateForm(BaseLocationForm):
     terms_accepted = forms.BooleanField(
         label="Al confirmar tu compra, acepto los términos y condiciones y las Políticas de Privacidad",
@@ -119,12 +177,12 @@ class OrderIdentificationForm(forms.ModelForm):
     document_type = forms.ChoiceField(
         label="Tipo de documento",
         choices=Order.DOCUMENT_TYPE_CHOICES,
-        required=False
+        required=True
     )
     document_number = forms.CharField(
         label="Documento",
         max_length=20,
-        required=False
+        required=True
     )
 
     class Meta:
@@ -144,17 +202,19 @@ class OrderIdentificationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['document_type'].required = False
-        self.fields['document_number'].required = False
+        self.fields['document_type'].required = True
+        self.fields['document_number'].required = True
 
 class OrderShippingForm(BaseLocationForm):
+    latitude = forms.FloatField(required=False, widget=forms.HiddenInput())
+    longitude = forms.FloatField(required=False, widget=forms.HiddenInput())
+    
     class Meta(BaseLocationForm.Meta):
         widgets = BaseLocationForm.Meta.widgets | {
             'address': forms.TextInput(attrs={'class': 'px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500', 'placeholder': 'Dirección completa'}),
             'street': forms.TextInput(attrs={'class': 'px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500', 'placeholder': 'Avenida Los Alisos'}),
             'street_number': forms.TextInput(attrs={'class': 'px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500', 'placeholder': '758'}),
             'additional_info': forms.TextInput(attrs={'class': 'px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500', 'placeholder': 'Apto. 201'}),
-            'recipient': forms.TextInput(attrs={'class': 'px-3 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500', 'placeholder': 'Nombre del destinatario'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -162,7 +222,6 @@ class OrderShippingForm(BaseLocationForm):
         self.fields['department'].required = True
         self.fields['province'].required = True
         self.fields['district'].required = True
-        self.fields['city'].required = True  # Hacer que el campo city sea obligatorio
+        self.fields['city'].required = True
         self.fields['street'].required = True
         self.fields['street_number'].required = True
-        self.fields['recipient'].required = True

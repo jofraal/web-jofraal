@@ -1,0 +1,107 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'orders/css/checkout.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container px-4 py-6 mx-auto sm:py-8">
+    {% include 'core/includes/breadcrumbs.html' with breadcrumbs=breadcrumbs %}
+    <h1 class="flex items-center mb-6 text-2xl font-bold text-gray-800">
+        <svg xmlns="http://www.w3.org/2000/svg" class="mr-2 w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        Finalizar la compra
+    </h1>
+
+    {% include 'orders/includes/progress_bar.html' %}
+
+    <div class="flex flex-col gap-4 sm:gap-6 lg:flex-row">
+        <!-- Formulario de compra -->
+        <div class="w-full lg:w-2/3">
+            {% include 'orders/includes/identification_step.html' %}
+            {% include 'orders/includes/shipping_step.html' %}
+            {% include 'orders/includes/payment_step.html' %}
+        </div>
+        
+        {% include 'orders/includes/order_summary.html' %}
+    </div>
+</div>
+
+{% block extra_js %}
+<!-- SDK de Mercado Pago -->
+<script src="https://sdk.mercadopago.com/js/v2"></script>
+
+<!-- Variables globales -->
+<script>
+    // Evitar redeclaración de la variable
+    if (typeof window.MERCADOPAGO_PUBLIC_KEY === 'undefined') {
+        window.MERCADOPAGO_PUBLIC_KEY = "{{ mercadopago_public_key }}";
+    }
+    
+    // Función para manejar errores de carga de la API de Google Maps
+    function handleApiError() {
+        console.error('Error al cargar la API de Google Maps');
+        // Evitar mostrar errores al usuario si no es necesario para la funcionalidad principal
+    }
+</script>
+
+<!-- Funciones comunes -->
+<script src="{% static 'js/utils.js' %}"></script>
+
+<!-- Ubicación -->
+<script src="{% static 'orders/js/location_selectors.js' %}"></script>
+<script src="{% static 'orders/js/map_checkout.js' %}"></script>
+
+
+<!-- Checkout paso a paso -->
+<script src="{% static 'orders/js/multi_step_checkout.js' %}"></script>
+
+<!-- Integración con Mercado Pago -->
+<script src="{% static 'orders/js/mercadopago.js' %}"></script>
+
+<!-- Cargar Google Maps después de todos los demás scripts (con loading=async como recomienda Google) -->
+<script>
+// Verificación mejorada para evitar cargas duplicadas de Google Maps
+function cargarGoogleMapsUnaVez() {
+    // Verificar si ya existe un script de Google Maps
+    const existingScript = document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]');
+    if (existingScript) {
+        console.log('Script de Google Maps ya existe, evitando carga duplicada');
+        return;
+    }
+    
+    // Verificar si la API ya está cargada
+    if (window.google && window.google.maps) {
+        console.log('API de Google Maps ya está cargada');
+        return;
+    }
+    
+    // Verificar si ya existe un elemento con el nombre que causa conflictos
+    if (document.querySelector('[name="gmp-internal-google-attribution"]') ||
+        document.querySelector('[name="gmp-internal-dialog"]')) {
+        console.log('Elementos internos de Google Maps ya existen, evitando carga duplicada');
+        return;
+    }
+    
+    // Si llegamos aquí, es seguro cargar el script
+    const script = document.createElement('script');
+    script.src = 'https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap&libraries=marker&loading=async';
+    script.async = true;
+    script.onerror = handleApiError;
+    document.head.appendChild(script);
+    console.log('Script de Google Maps cargado correctamente');
+}
+
+// Ejecutar la función de carga
+cargarGoogleMapsUnaVez();
+</script>
+
+<script src="{% static 'orders/js/user_data_autofill.js' %}"></script>
+
+<!-- Token CSRF -->
+<meta name="csrf-token" content="{{ csrf_token }}">
+
+{% endblock %}
+{% endblock %}

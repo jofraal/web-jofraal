@@ -2,181 +2,85 @@
 {% load static %}
 {% block title %}{{ product.name }}{% endblock %}
 {% block content %}
-<div class="p-3 mx-auto max-w-6xl bg-white sm:p-4 md:p-6" role="main" aria-label="Detalle del producto">
-  <!-- Breadcrumb navigation -->
-  <nav class="flex mb-6 text-sm text-gray-600" aria-label="Migas de pan">
-    <a href="{% url 'core:home' %}" class="hover:text-red-600">Inicio</a>
-    <span class="mx-2" aria-hidden="true">/</span>
-    <a href="{% url 'products:product_list' %}" class="hover:text-red-600">Productos</a>
-    <span class="mx-2" aria-hidden="true">/</span>
-    <span class="text-gray-900" aria-current="page">{{ product.name }}</span>
-  </nav>
+<main class="px-0 py-8 mx-0 w-full min-h-screen bg-white">
+  <div class="container px-4 mx-auto bg-white">
+    <!-- Breadcrumb navigation -->
+    <nav class="flex mb-6 text-sm text-gray-600" aria-label="Migas de pan">
+      <a href="{% url 'core:home' %}" class="hover:text-red-600">Inicio</a>
+      <span class="mx-2" aria-hidden="true">/</span>
+      <a href="{% url 'products:product_list' %}" class="hover:text-red-600">Productos</a>
+      <span class="mx-2" aria-hidden="true">/</span>
+      <span class="text-gray-900" aria-current="page">{{ product.name }}</span>
+    </nav>
 
-  <div class="flex flex-col gap-4 sm:gap-6 md:gap-8 md:flex-row">
-    <!-- Imagen principal y carrusel -->
-    <div class="w-full md:w-1/2 lg:sticky lg:top-4 lg:self-start">
-      <div class="overflow-hidden relative rounded-lg shadow-sm">
-        <!-- Carrusel de imágenes principales -->
-        <div id="product-carousel" class="relative">
+    <div class="flex flex-col gap-4 sm:gap-6 md:gap-8 md:flex-row">
+      <!-- Imagen principal y carrusel -->
+      <div class="w-full md:w-1/2 lg:sticky lg:top-4 lg:self-start">
+        <div class="overflow-hidden relative rounded-lg shadow-sm">
+          <!-- Carrusel de imágenes principales -->
+          <div id="product-carousel" class="relative">
+            {% if product.image %}
+              <div class="carousel-item active">
+                <img id="main-image" src="{{ product.image.url }}" alt="{{ product.name }}" class="object-cover w-full h-auto rounded-lg" loading="eager" />
+              </div>
+            {% endif %}
+            
+            {% for variant in product.variants.all %}
+              {% if variant.image and variant.image.url %}
+                <div class="hidden carousel-item">
+                  <img src="{{ variant.image.url }}" alt="{{ product.name }} - {{ variant.color }}" class="object-cover w-full h-auto rounded-lg" loading="lazy" />
+                </div>
+              {% endif %}
+            {% endfor %}
+            
+            <!-- Controles del carrusel - más grandes en móvil para mejor usabilidad -->
+            <button class="absolute left-1 top-1/2 p-1.5 text-gray-800 rounded-full shadow-sm transform -translate-y-1/2 sm:left-2 sm:p-2 md:p-3 bg-white/70 hover:bg-white" id="prev-slide" aria-label="Imagen anterior">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button class="absolute right-1 top-1/2 p-1.5 text-gray-800 rounded-full shadow-sm transform -translate-y-1/2 sm:right-2 sm:p-2 md:p-3 bg-white/70 hover:bg-white" id="next-slide" aria-label="Imagen siguiente">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Miniaturas para cada color - mejor visualización en móvil -->
+        <div class="flex overflow-x-auto justify-start pb-2 mt-3 space-x-2 sm:mt-4 scrollbar-thin scrollbar-thumb-gray-300">
           {% if product.image %}
-            <div class="carousel-item active">
-              <img id="main-image" src="{{ product.image.url }}" alt="{{ product.name }}" class="object-cover w-full h-auto rounded-lg" loading="eager" />
-            </div>
+            <img 
+              src="{{ product.image.url }}" 
+              alt="{{ product.name }}" 
+              class="w-14 h-14 rounded-lg border border-gray-200 cursor-pointer sm:w-16 sm:h-16 thumbnail active" 
+              data-index="0"
+              loading="eager"
+            />
           {% endif %}
           
           {% for variant in product.variants.all %}
             {% if variant.image %}
-              <div class="hidden carousel-item">
-                <img src="{{ variant.image.url }}" alt="{{ product.name }} - {{ variant.color }}" class="object-cover w-full h-auto rounded-lg" loading="lazy" />
-              </div>
-            {% endif %}
-          {% endfor %}
-          
-          <!-- Controles del carrusel - más grandes en móvil para mejor usabilidad -->
-          <button class="absolute left-1 top-1/2 p-1.5 text-gray-800 rounded-full shadow-sm transform -translate-y-1/2 sm:left-2 sm:p-2 md:p-3 bg-white/70 hover:bg-white" id="prev-slide" aria-label="Imagen anterior">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <button class="absolute right-1 top-1/2 p-1.5 text-gray-800 rounded-full shadow-sm transform -translate-y-1/2 sm:right-2 sm:p-2 md:p-3 bg-white/70 hover:bg-white" id="next-slide" aria-label="Imagen siguiente">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-      </div>
-      
-      <!-- Miniaturas para cada color - mejor visualización en móvil -->
-      <div class="flex overflow-x-auto justify-start pb-2 mt-3 space-x-2 sm:mt-4 scrollbar-thin scrollbar-thumb-gray-300">
-        {% if product.image %}
-          <img 
-            src="{{ product.image.url }}" 
-            alt="{{ product.name }}" 
-            class="w-14 h-14 rounded-lg border border-gray-200 cursor-pointer sm:w-16 sm:h-16 thumbnail active" 
-            data-index="0"
-            loading="eager"
-          />
-        {% endif %}
-        
-        {% for variant in product.variants.all %}
-          {% if variant.image %}
-            <img 
-              src="{{ variant.image.url }}" 
-              alt="{{ variant.color }}" 
-              class="w-14 h-14 rounded-lg border border-gray-200 cursor-pointer sm:w-16 sm:h-16 thumbnail" 
-              data-index="{{ forloop.counter }}"
-              data-color="{{ variant.color }}"
-              loading="lazy"
-            />
-          {% endif %}
-        {% endfor %}
-      </div>
-    </div>
-    <!-- Detalles del producto -->
-    <div class="w-full md:w-1/2 lg:sticky lg:top-4 lg:self-start">
-      <h1 class="text-lg font-bold uppercase sm:text-xl md:text-2xl">{{ product.name }}</h1>
-      <p class="text-sm text-gray-600 uppercase">{{ product.brand|default:"JOHN HOLDEN" }}</p>
-      
-      <!-- Calificación del producto en la parte superior - mejorada para móvil -->
-      <div class="flex items-center mt-1.5 sm:mt-2">
-        <div class="flex text-sm text-yellow-400 sm:text-base">
-          {% with rating=product.average_rating|floatformat:1 %}
-            {% for i in "12345"|make_list %}
-              {% if i|add:"0"|floatformat:1 <= rating %}
-                <span>★</span>
-              {% else %}
-                <span>☆</span>
-              {% endif %}
-            {% endfor %}
-          {% endwith %}
-        </div>
-        <span class="ml-2 text-xs text-gray-600 sm:text-sm">({{ product.average_rating }}/5)</span>
-      </div>
-      
-      <div class="flex flex-wrap gap-1.5 items-center mt-3 sm:gap-2 sm:mt-4">
-        {% if product.discount_percentage > 0 %}
-        <span class="mr-1 text-sm text-gray-500 line-through">S/ {{ product.original_price }}</span>
-        <span class="text-lg font-bold text-red-600 sm:text-xl">S/ {{ product.discounted_price }}</span>
-        {% else %}
-        <span class="text-lg font-bold text-red-600 sm:text-xl">S/ {{ product.price }}</span>
-        {% endif %}
-        
-        {% if product.discount_percentage > 0 %}
-        <span class="px-2 py-1 text-xs font-semibold text-white bg-red-600 rounded">
-          {{ product.discount_percentage }}% DSCTO
-        </span>
-        {% endif %}
-      </div>
-      
-      <!-- Disponibilidad del producto - mejorada para móvil -->
-      <div class="mt-2 sm:mt-3">
-        <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-green-800 bg-green-100 rounded-full">
-          <svg class="mr-1.5 -ml-0.5 w-2 h-2 text-green-400" fill="currentColor" viewBox="0 0 8 8">
-            <circle cx="4" cy="4" r="3" />
-          </svg>
-          En stock
-        </span>
-      </div>
-      
-      <div class="mt-4 sm:mt-5 md:mt-6">
-        <label for="color-options" class="block text-sm font-medium text-gray-700">Color:</label>
-        <div class="flex flex-wrap gap-1.5 mt-1.5 sm:gap-2 sm:mt-2" id="color-options" role="radiogroup" aria-label="Selección de color">
-          {% for color in variant_colors %}
-            <button type="button" 
-              class="color-option px-1.5 py-1 text-xs sm:px-2 sm:py-1 md:px-3 sm:text-sm border rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 {% if forloop.first %}bg-gray-100 border-gray-400{% endif %}" 
-              data-color="{{ color }}" 
-              role="radio" 
-              aria-checked="{% if forloop.first %}true{% else %}false{% endif %}" 
-              aria-label="Color {{ color }}">
-              {{ color }}
-            </button>
-          {% endfor %}
-        </div>
-        <input type="hidden" id="selected-color" name="color" value="{{ product.variants.first.color }}">
-      </div>
-      
-      <div class="mt-3 sm:mt-4">
-        <label for="size-options" class="block text-sm font-medium text-gray-700">Talla:</label>
-        <div class="flex flex-wrap gap-1.5 mt-1.5 sm:gap-2 sm:mt-2" id="size-options" role="radiogroup" aria-label="Selección de talla">
-          {% for variant in product.variants.all %}
-            {% if variant.color == product.variants.first.color %}
-              <button type="button" 
-                class="size-option px-1.5 py-1 text-xs sm:px-2 sm:py-1 md:px-3 sm:text-sm border rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 {% if forloop.first %}bg-gray-100 border-gray-400{% endif %} {% if variant.stock == 0 %}opacity-50 cursor-not-allowed{% endif %}" 
-                data-size="{{ variant.size }}" 
-                data-variant-id="{{ variant.id }}" 
-                role="radio" 
-                aria-checked="{% if forloop.first %}true{% else %}false{% endif %}" 
-                aria-label="Talla {{ variant.size }}{% if variant.stock == 0 %} - Agotado{% endif %}" 
-                {% if variant.stock == 0 %}disabled aria-disabled="true"{% endif %}>
-                {{ variant.size }} {% if variant.stock == 0 %}<span class="text-xs">(Agotado)</span>{% endif %}
-              </button>
+              <img 
+                src="{{ variant.image.url }}" 
+                alt="{{ variant.color }}" 
+                class="w-14 h-14 rounded-lg border border-gray-200 cursor-pointer sm:w-16 sm:h-16 thumbnail" 
+                data-index="{{ forloop.counter }}"
+                data-color="{{ variant.color }}"
+                loading="lazy"
+              />
             {% endif %}
           {% endfor %}
         </div>
-        <input type="hidden" id="selected-size" name="size" value="{{ product.variants.first.size }}">
-        <input type="hidden" id="selected-variant-id" name="variant_id" value="{{ product.variants.first.id }}">
       </div>
-      
-      <div class="mt-4 sm:mt-5 md:mt-6">
-        <button id="add-to-cart-button" type="button" class="block p-2 w-full text-sm text-white bg-black rounded-md transition sm:p-3 hover:bg-gray-800 sm:text-base"
-                data-product-id="{{ product.id }}" aria-label="Agregar {{ product.name }} al carrito">
-          <span id="loading-indicator" class="hidden">Agregando...</span>
-          <span id="button-text">Agregar al carrito</span>
-        </button>
-        <div id="message" class="mt-2 text-sm text-center"></div>
-      </div>
-      
-      <div class="mt-4 sm:mt-5 md:mt-6">
-        <h2 class="text-base font-semibold sm:text-lg">Descripción</h2>
-        <p class="mt-1.5 text-xs text-gray-700 sm:mt-2 sm:text-sm md:text-base">{{ product.description }}</p>
-      </div>
-
-      <!-- Sección de Reseñas con Estrellas - mejorada para móvil -->
-      <div class="mt-4 sm:mt-5 md:mt-6">
-        <h2 class="text-base font-semibold sm:text-lg">Reseñas</h2>
-        <div class="flex flex-wrap gap-1 items-center mt-2 sm:gap-2">
-          <span class="text-sm text-gray-700 sm:text-base">Calificación promedio:</span>
-          <div id="average-rating" class="flex text-lg text-yellow-400 sm:text-xl">
+      <!-- Detalles del producto -->
+      <div class="w-full md:w-1/2 lg:sticky lg:top-4 lg:self-start">
+        <h1 class="text-lg font-bold uppercase sm:text-xl md:text-2xl">{{ product.name }}</h1>
+        <p class="text-sm text-gray-600 uppercase">{{ product.brand|default:"" }}</p>
+        
+        <!-- Calificación del producto en la parte superior - mejorada para móvil -->
+        <div class="flex items-center mt-1.5 sm:mt-2">
+          <div class="flex text-sm text-yellow-400 sm:text-base">
             {% with rating=product.average_rating|floatformat:1 %}
               {% for i in "12345"|make_list %}
                 {% if i|add:"0"|floatformat:1 <= rating %}
@@ -187,37 +91,164 @@
               {% endfor %}
             {% endwith %}
           </div>
-          <span class="ml-1 text-xs text-gray-700 sm:ml-2 sm:text-sm">({{ product.average_rating }}/5)</span>
+          <span class="ml-2 text-xs text-gray-600 sm:text-sm">({{ product.average_rating }}/5)</span>
         </div>
         
-        <!-- Lista de reseñas existentes -->
-        <div class="overflow-y-auto pr-2 mt-3 space-y-3 max-h-48 sm:mt-4 sm:space-y-4 sm:max-h-60" id="reviews-container">
-          {% for review in product.reviews.all %}
-            <div class="p-2 text-sm rounded-lg border sm:p-3 sm:text-base">
-              <div class="flex flex-wrap gap-2 justify-between items-center">
-                <div class="flex flex-wrap gap-1 items-center sm:gap-2">
-                  <span class="font-medium">{{ review.user.username }}</span>
-                  <span class="mx-1 text-gray-400 sm:mx-2">•</span>
-                  <div class="flex text-sm text-yellow-400">
-                    {% for i in "12345"|make_list %}
-                      {% if forloop.counter <= review.rating %}
-                        <span>★</span>
-                      {% else %}
-                        <span>☆</span>
-                      {% endif %}
-                    {% endfor %}
-                  </div>
-                </div>
-                <span class="text-xs text-gray-500">{{ review.created|date:"d/m/Y" }}</span>
-              </div>
-              <p class="mt-1 text-xs text-gray-700 sm:mt-2 sm:text-sm">{{ review.comment }}</p>
+        <div class="flex flex-wrap gap-1.5 items-center mt-3 sm:gap-2 sm:mt-4">
+          {% if product.discount_percentage > 0 %}
+          <span class="mr-1 text-sm text-gray-500 line-through">S/ {{ product.original_price }}</span>
+          <span class="text-lg font-bold text-red-600 sm:text-xl">S/ {{ product.discounted_price }}</span>
+          {% else %}
+          <span class="text-lg font-bold text-red-600 sm:text-xl">S/ {{ product.price }}</span>
+          {% endif %}
+          
+          {% if product.discount_percentage > 0 %}
+          <span class="px-2 py-1 text-xs font-semibold text-white bg-red-600 rounded">
+            {{ product.discount_percentage }}% DSCTO
+          </span>
+          {% endif %}
+        </div>
+        
+        <!-- Disponibilidad del producto - mejorada para móvil -->
+        <div class="mt-2 sm:mt-3" id="stock-info">
+          {% with first_variant=product.variants.first %}
+            {% if first_variant and first_variant.stock > 0 %}
+              {% if first_variant.stock <= 3 %}
+              <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-amber-800 bg-amber-100 rounded-full">
+                <svg class="mr-1.5 -ml-0.5 w-2 h-2 text-amber-400" fill="currentColor" viewBox="0 0 8 8">
+                  <circle cx="4" cy="4" r="3" />
+                </svg>
+                ¡Solo quedan {{ first_variant.stock }}!
+              </span>
+              {% else %}
+              <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-green-800 bg-green-100 rounded-full">
+                <svg class="mr-1.5 -ml-0.5 w-2 h-2 text-green-400" fill="currentColor" viewBox="0 0 8 8">
+                  <circle cx="4" cy="4" r="3" />
+                </svg>
+                En stock ({{ first_variant.stock }} disponibles)
+              </span>
+              {% endif %}
+            {% elif first_variant and first_variant.stock == 0 %}
+              <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-red-800 bg-red-100 rounded-full">
+                <svg class="mr-1.5 -ml-0.5 w-2 h-2 text-red-400" fill="currentColor" viewBox="0 0 8 8">
+                  <circle cx="4" cy="4" r="3" />
+                </svg>
+                Agotado
+              </span>
+            {% else %}
+              <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-green-800 bg-green-100 rounded-full">
+                <svg class="mr-1.5 -ml-0.5 w-2 h-2 text-green-400" fill="currentColor" viewBox="0 0 8 8">
+                  <circle cx="4" cy="4" r="3" />
+                </svg>
+                En stock
+              </span>
+            {% endif %}
+          {% endwith %}
+        </div>
+        
+        {% if product.sku %}
+        <p class="mt-1 text-xs text-gray-400">SKU: {{ product.sku }}</p>
+        {% endif %}
+        
+        <div class="mt-4 sm:mt-5 md:mt-6">
+          <label for="color-options" class="block text-sm font-medium text-gray-700">Color:</label>
+          <div class="flex flex-wrap gap-1.5 mt-1.5 sm:gap-2 sm:mt-2" id="color-options" role="radiogroup" aria-label="Selección de color">
+            {% for color in variant_colors %}
+              <button type="button" 
+                class="color-option px-1.5 py-1 text-xs sm:px-2 sm:py-1 md:px-3 sm:text-sm border rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 {% if forloop.first %}bg-gray-100 border-gray-400{% endif %}" 
+                data-color="{{ color }}" 
+                role="radio" 
+                aria-checked="{% if forloop.first %}true{% else %}false{% endif %}" 
+                aria-label="Color {{ color }}">
+                {{ color }}
+              </button>
+            {% endfor %}
+          </div>
+          <input type="hidden" id="selected-color" name="color" value="{{ product.variants.first.color }}">
+        </div>
+        
+        <div class="mt-3 sm:mt-4">
+          <label for="size-options" class="block text-sm font-medium text-gray-700">Talla:</label>
+          <div class="flex flex-wrap gap-1.5 mt-1.5 sm:gap-2 sm:mt-2" id="size-options" role="radiogroup" aria-label="Selección de talla">
+            {% for variant in product.variants.all %}
+              {% if variant.color == product.variants.first.color %}
+                <button type="button" 
+                  class="size-option px-1.5 py-1 text-xs sm:px-2 sm:py-1 md:px-3 sm:text-sm border rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 {% if forloop.first %}bg-gray-100 border-gray-400{% endif %} {% if variant.stock == 0 %}opacity-50 cursor-not-allowed{% endif %}" 
+                  data-size="{{ variant.size }}" 
+                  data-variant-id="{{ variant.id }}" 
+                  role="radio" 
+                  aria-checked="{% if forloop.first %}true{% else %}false{% endif %}" 
+                  aria-label="Talla {{ variant.size }}{% if variant.stock == 0 %} - Agotado{% endif %}" 
+                  {% if variant.stock == 0 %}disabled aria-disabled="true"{% endif %}>
+                  {{ variant.size }} {% if variant.stock == 0 %}<span class="text-xs">(Agotado)</span>{% endif %}
+                </button>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <input type="hidden" id="selected-size" name="size" value="{{ product.variants.first.size }}">
+          <input type="hidden" id="selected-variant-id" name="variant_id" value="{{ product.variants.first.id }}">
+        </div>
+        
+        <div class="mt-4 sm:mt-5 md:mt-6">
+          <button id="add-to-cart-button" type="button" class="block p-2 w-full text-sm text-white bg-black rounded-md transition sm:p-3 hover:bg-gray-800 sm:text-base"
+                data-product-id="{{ product.id }}" aria-label="Agregar {{ product.name }} al carrito">
+            <span id="loading-indicator" class="hidden">Agregando...</span>
+            <span id="button-text">Agregar al carrito</span>
+          </button>
+          <div id="message" class="mt-2 text-sm text-center"></div>
+        </div>
+        
+        <div class="mt-4 sm:mt-5 md:mt-6">
+          <h2 class="text-base font-semibold sm:text-lg">Descripción</h2>
+          <p class="mt-1.5 text-xs text-gray-700 sm:mt-2 sm:text-sm md:text-base">{{ product.description }}</p>
+        </div>
+    
+        <!-- Sección de Reseñas con Estrellas - mejorada para móvil -->
+        <div class="mt-4 sm:mt-5 md:mt-6">
+          <h2 class="text-base font-semibold sm:text-lg">Reseñas</h2>
+          <div class="flex flex-wrap gap-1 items-center mt-2 sm:gap-2">
+            <span class="text-sm text-gray-700 sm:text-base">Calificación promedio:</span>
+            <div id="average-rating" class="flex text-lg text-yellow-400 sm:text-xl">
+              {% with rating=product.average_rating|floatformat:1 %}
+                {% for i in "12345"|make_list %}
+                  {% if i|add:"0"|floatformat:1 <= rating %}
+                    <span>★</span>
+                  {% else %}
+                    <span>☆</span>
+                  {% endif %}
+                {% endfor %}
+              {% endwith %}
             </div>
-          {% empty %}
-            <p class="text-xs italic text-gray-500 sm:text-sm">No hay reseñas todavía. ¡Sé el primero en opinar!</p>
-          {% endfor %}
-        </div>
-        
-
+            <span class="ml-1 text-xs text-gray-700 sm:ml-2 sm:text-sm">({{ product.average_rating }}/5)</span>
+          </div>
+          
+          <!-- Lista de reseñas existentes -->
+          <div class="overflow-y-auto pr-2 mt-3 space-y-3 max-h-48 sm:mt-4 sm:space-y-4 sm:max-h-60" id="reviews-container">
+            {% for review in product.reviews.all %}
+              <div class="p-2 text-sm rounded-lg border sm:p-3 sm:text-base">
+                <div class="flex flex-wrap gap-2 justify-between items-center">
+                  <div class="flex flex-wrap gap-1 items-center sm:gap-2">
+                    <span class="font-medium">{{ review.user.username }}</span>
+                    <span class="mx-1 text-gray-400 sm:mx-2">•</span>
+                    <div class="flex text-sm text-yellow-400">
+                      {% for i in "12345"|make_list %}
+                        {% if forloop.counter <= review.rating %}
+                          <span>★</span>
+                        {% else %}
+                          <span>☆</span>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                  </div>
+                  <span class="text-xs text-gray-500">{{ review.created|date:"d/m/Y" }}</span>
+                </div>
+                <p class="mt-1 text-xs text-gray-700 sm:mt-2 sm:text-sm">{{ review.comment }}</p>
+              </div>
+            {% empty %}
+              <p class="text-xs italic text-gray-500 sm:text-sm">No hay reseñas todavía. ¡Sé el primero en opinar!</p>
+            {% endfor %}
+          </div>
+          
       </div>
     </div>
   </div>
@@ -266,7 +297,7 @@
 
               <!-- Detalles del producto -->
               <div class="p-3 sm:p-4">
-                <p class="mb-1 text-xs text-gray-500 uppercase">{{ related.brand|default:"JOHN HOLDEN" }}</p>
+                <p class="mb-1 text-xs text-gray-500 uppercase">{{ related.brand|default:"" }}</p>
                 <h3 class="h-10 text-sm font-medium text-gray-900 uppercase sm:h-12 sm:text-base line-clamp-2">{{ related.name }}</h3>
                 <div class="flex items-center mt-1 sm:mt-2">
                   {% if related.discount_percentage > 0 %}
@@ -319,53 +350,69 @@
       </div>
     </section>
   </div>
-</div>
+</main>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // Inicializar el carrusel de imágenes
-    initProductCarousel();
+  // Esperar a que el DOM esté completamente cargado antes de inicializar
+  document.addEventListener('DOMContentLoaded', initProductPage);
+  
+  // Función principal que inicializa todas las funcionalidades de la página
+  function initProductPage() {
+    // Inicializar todas las funcionalidades con una sola llamada
+    const elements = {
+      carousel: document.getElementById('product-carousel'),
+      slides: document.querySelectorAll('.carousel-item'),
+      thumbnails: document.querySelectorAll('.thumbnail'),
+      prevButton: document.getElementById('prev-slide'),
+      nextButton: document.getElementById('next-slide'),
+      colorOptions: document.querySelectorAll('.color-option'),
+      selectedColorInput: document.getElementById('selected-color'),
+      selectedSizeInput: document.getElementById('selected-size'),
+      selectedVariantIdInput: document.getElementById('selected-variant-id'),
+      addToCartButton: document.getElementById('add-to-cart-button'),
+      messageElement: document.getElementById('message'),
+      relatedPrevButton: document.getElementById('related-prev'),
+      relatedNextButton: document.getElementById('related-next'),
+      relatedContainer: document.getElementById('related-products-container'),
+      recentlyViewedContainer: document.getElementById('recently-viewed-container'),
+      recentlyViewedSection: document.getElementById('recently-viewed-section')
+    };
     
-    // Inicializar la selección de variantes
-    initVariantSelection();
+    // Inicializar el carrusel y la selección de variantes
+    initProductCarousel(elements);
+    initVariantSelection(elements);
     
     // Configurar el botón de agregar al carrito
-    setupAddToCartButton();
+    setupAddToCartButton(elements);
     
     // Inicializar la sección de productos vistos recientemente
     initRecentlyViewed();
     
     // Inicializar los controles de navegación para productos relacionados
-    initRelatedProductsNavigation();
-  });
+    initRelatedProductsNavigation(elements);
+  }
   
   // Función para inicializar el carrusel de imágenes
-  function initProductCarousel() {
-    const carousel = document.getElementById('product-carousel');
-    const slides = carousel.querySelectorAll('.carousel-item');
-    const thumbnails = document.querySelectorAll('.thumbnail');
-    const prevButton = document.getElementById('prev-slide');
-    const nextButton = document.getElementById('next-slide');
+  function initProductCarousel(elements) {
+    const { carousel, slides, thumbnails, prevButton, nextButton } = elements;
     let currentIndex = 0;
     
     // Función para mostrar una diapositiva específica
     function showSlide(index) {
-      // Ocultar todas las diapositivas
+      // Ocultar todas las diapositivas y actualizar las miniaturas
       slides.forEach(slide => slide.classList.add('hidden'));
+      thumbnails.forEach(thumb => thumb.classList.remove('active', 'ring', 'ring-red-500'));
       
-      // Mostrar la diapositiva actual
+      // Mostrar la diapositiva actual y actualizar su miniatura
       slides[index].classList.remove('hidden');
       slides[index].classList.add('active');
-      
-      // Actualizar las miniaturas
-      thumbnails.forEach(thumb => thumb.classList.remove('active', 'ring', 'ring-red-500'));
       thumbnails[index].classList.add('active', 'ring', 'ring-red-500');
       
       // Actualizar el índice actual
       currentIndex = index;
     }
     
-    // Configurar los botones de navegación
+    // Configurar los botones de navegación si existen
     if (prevButton && nextButton) {
       prevButton.addEventListener('click', () => {
         const newIndex = (currentIndex - 1 + slides.length) % slides.length;
@@ -378,45 +425,41 @@
       });
     }
     
-    // Configurar las miniaturas
-    thumbnails.forEach(thumbnail => {
-      thumbnail.addEventListener('click', () => {
-        const index = parseInt(thumbnail.getAttribute('data-index'));
-        showSlide(index);
-        
-        // Si la miniatura tiene un color asociado, seleccionar ese color
-        const color = thumbnail.getAttribute('data-color');
-        if (color) {
-          const colorButtons = document.querySelectorAll('.color-option');
-          colorButtons.forEach(button => {
-            if (button.getAttribute('data-color') === color) {
-              button.click();
-            }
-          });
-        }
+    // Configurar las miniaturas con delegación de eventos
+    if (thumbnails.length > 0) {
+      thumbnails.forEach(thumbnail => {
+        thumbnail.addEventListener('click', () => {
+          const index = parseInt(thumbnail.getAttribute('data-index'));
+          showSlide(index);
+          
+          // Si la miniatura tiene un color asociado, seleccionar ese color
+          const color = thumbnail.getAttribute('data-color');
+          if (color) {
+            const colorButton = document.querySelector(`.color-option[data-color="${color}"]`);
+            if (colorButton) colorButton.click();
+          }
+        });
       });
-    });
-    
-    // Mostrar la primera diapositiva
-    if (slides.length > 0) {
+      
+      // Mostrar la primera diapositiva
       showSlide(0);
     }
   }
   
   // Función para inicializar la selección de variantes
-  function initVariantSelection() {
-    const colorOptions = document.querySelectorAll('.color-option');
-    const selectedColorInput = document.getElementById('selected-color');
-    const selectedSizeInput = document.getElementById('selected-size');
-    const selectedVariantIdInput = document.getElementById('selected-variant-id');
+  function initVariantSelection(elements) {
+    const { colorOptions, selectedColorInput, selectedSizeInput, selectedVariantIdInput, addToCartButton, messageElement } = elements;
     
     // Función para actualizar las tallas disponibles según el color seleccionado
     function updateSizeOptions(selectedColor) {
-      // Ocultar todas las opciones de talla
+      // Obtener el contenedor de tallas y limpiarlo
       const sizeContainer = document.getElementById('size-options');
       sizeContainer.innerHTML = '';
       
       let variantsFound = false;
+      
+      // Crear un fragmento para mejorar el rendimiento al añadir múltiples elementos
+      const fragment = document.createDocumentFragment();
       
       // Mostrar solo las tallas disponibles para el color seleccionado
       {% for variant in product.variants.all %}
@@ -427,6 +470,7 @@
         sizeButton.className = 'size-option px-3 py-1 border rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 {% if variant.stock == 0 %}opacity-50 cursor-not-allowed{% endif %}';
         sizeButton.setAttribute('data-size', '{{ variant.size }}');
         sizeButton.setAttribute('data-variant-id', '{{ variant.id }}');
+        sizeButton.setAttribute('data-stock', '{{ variant.stock }}');
         
         {% if variant.stock == 0 %}
         sizeButton.disabled = true;
@@ -435,25 +479,15 @@
         sizeButton.textContent = '{{ variant.size }}';
         {% endif %}
         
-        sizeButton.addEventListener('click', function() {
-          // Desactivar todas las opciones de talla
-          document.querySelectorAll('.size-option').forEach(btn => {
-            btn.classList.remove('bg-gray-100', 'border-gray-400');
-            btn.setAttribute('aria-checked', 'false');
-          });
-          
-          // Activar la opción seleccionada
-          this.classList.add('bg-gray-100', 'border-gray-400');
-          this.setAttribute('aria-checked', 'true');
-          
-          // Actualizar los inputs ocultos
-          selectedSizeInput.value = this.getAttribute('data-size');
-          selectedVariantIdInput.value = this.getAttribute('data-variant-id');
-        });
+        // Usar una función anónima para evitar problemas con 'this'
+        sizeButton.addEventListener('click', () => handleSizeSelection(sizeButton, selectedSizeInput, selectedVariantIdInput));
         
-        sizeContainer.appendChild(sizeButton);
+        fragment.appendChild(sizeButton);
       }
       {% endfor %}
+      
+      // Añadir todos los elementos de una vez para mejor rendimiento
+      sizeContainer.appendChild(fragment);
       
       // Si no se encontraron variantes para este color, mostrar un mensaje
       if (!variantsFound) {
@@ -465,6 +499,9 @@
         // Limpiar los inputs ocultos
         selectedSizeInput.value = '';
         selectedVariantIdInput.value = '';
+        
+        // Actualizar el botón de agregar al carrito
+        updateAddToCartButton(false, addToCartButton, messageElement);
         return;
       }
       
@@ -472,85 +509,125 @@
       const firstSizeButton = sizeContainer.querySelector('.size-option:not([disabled])');
       if (firstSizeButton) {
         firstSizeButton.click();
-        // Habilitar el botón de agregar al carrito
-        const addToCartButton = document.getElementById('add-to-cart-button');
-        if (addToCartButton) {
-          addToCartButton.disabled = false;
-          addToCartButton.classList.remove('opacity-50', 'cursor-not-allowed');
-          addToCartButton.classList.add('hover:bg-gray-800');
-          addToCartButton.setAttribute('aria-disabled', 'false');
-        }
+        updateAddToCartButton(true, addToCartButton, messageElement);
       } else {
-        // Si no hay tallas disponibles, actualizar el botón de agregar al carrito
-        const addToCartButton = document.getElementById('add-to-cart-button');
-        if (addToCartButton) {
-          addToCartButton.disabled = true;
-          addToCartButton.classList.add('opacity-50', 'cursor-not-allowed');
-          addToCartButton.classList.remove('hover:bg-gray-800');
-          addToCartButton.setAttribute('aria-disabled', 'true');
-          // Mostrar mensaje informativo
-          const messageElement = document.getElementById('message');
-          if (messageElement) {
-            messageElement.innerHTML = '<p class="text-sm text-amber-500">No hay tallas disponibles para este color</p>';
-          }
+        updateAddToCartButton(false, addToCartButton, messageElement);
+        // Actualizar stock como agotado
+        updateStockDisplay('0', null);
+      }
+    }
+    
+    // Función para manejar la selección de talla
+    function handleSizeSelection(selectedButton, sizeInput, variantIdInput) {
+      // Desactivar todas las opciones de talla
+      document.querySelectorAll('.size-option').forEach(btn => {
+        btn.classList.remove('bg-gray-100', 'border-gray-400');
+        btn.setAttribute('aria-checked', 'false');
+      });
+      
+      // Activar la opción seleccionada
+      selectedButton.classList.add('bg-gray-100', 'border-gray-400');
+      selectedButton.setAttribute('aria-checked', 'true');
+      
+      // Actualizar los inputs ocultos
+      sizeInput.value = selectedButton.getAttribute('data-size');
+      variantIdInput.value = selectedButton.getAttribute('data-variant-id');
+      
+      // Actualizar el indicador de stock
+      updateStockDisplay(selectedButton.getAttribute('data-stock'), selectedButton.getAttribute('data-variant-id'));
+    }
+    
+    // Función para actualizar el display de stock
+    function updateStockDisplay(stock, variantId) {
+      const stockInfo = document.getElementById('stock-info');
+      if (!stockInfo) return;
+      
+      const stockNum = parseInt(stock);
+      let html = '';
+      
+      if (isNaN(stockNum) || stockNum === 0) {
+        html = '<span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-red-800 bg-red-100 rounded-full">'
+             + '<svg class="mr-1.5 -ml-0.5 w-2 h-2 text-red-400" fill="currentColor" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3"/></svg>'
+             + 'Agotado</span>';
+      } else if (stockNum <= 3) {
+        html = '<span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-amber-800 bg-amber-100 rounded-full">'
+             + '<svg class="mr-1.5 -ml-0.5 w-2 h-2 text-amber-400" fill="currentColor" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3"/></svg>'
+             + '¡Solo quedan ' + stockNum + '!</span>';
+      } else {
+        html = '<span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-green-800 bg-green-100 rounded-full">'
+             + '<svg class="mr-1.5 -ml-0.5 w-2 h-2 text-green-400" fill="currentColor" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3"/></svg>'
+             + 'En stock (' + stockNum + ' disponibles)</span>';
+      }
+      
+      stockInfo.innerHTML = html;
+    }
+    
+    // Función para actualizar el estado del botón de agregar al carrito
+    function updateAddToCartButton(enabled, button, messageElement) {
+      if (!button) return;
+      
+      if (enabled) {
+        // Habilitar el botón
+        button.disabled = false;
+        button.classList.remove('opacity-50', 'cursor-not-allowed');
+        button.classList.add('hover:bg-gray-800');
+        button.setAttribute('aria-disabled', 'false');
+        // Limpiar mensaje de error si existe
+        if (messageElement) messageElement.innerHTML = '';
+      } else {
+        // Deshabilitar el botón
+        button.disabled = true;
+        button.classList.add('opacity-50', 'cursor-not-allowed');
+        button.classList.remove('hover:bg-gray-800');
+        button.setAttribute('aria-disabled', 'true');
+        // Mostrar mensaje informativo
+        if (messageElement) {
+          messageElement.innerHTML = '<p class="text-sm text-amber-500">No hay tallas disponibles para este color</p>';
         }
       }
     }
     
-    // Configurar los botones de color
-    colorOptions.forEach(button => {
-      button.addEventListener('click', function() {
-        // Desactivar todos los botones de color
-        colorOptions.forEach(btn => {
-          btn.classList.remove('bg-gray-100', 'border-gray-400');
-          btn.setAttribute('aria-checked', 'false');
-        });
-        
-        // Activar el botón seleccionado
-        this.classList.add('bg-gray-100', 'border-gray-400');
-        this.setAttribute('aria-checked', 'true');
-        
-        // Actualizar el input oculto
-        const selectedColor = this.getAttribute('data-color');
-        selectedColorInput.value = selectedColor;
-        
-        // Actualizar las tallas disponibles
-        updateSizeOptions(selectedColor);
-        
-        // Actualizar la imagen principal si hay una miniatura con este color
-        const colorThumbnail = document.querySelector(`.thumbnail[data-color="${selectedColor}"]`);
-        if (colorThumbnail) {
-          const index = parseInt(colorThumbnail.getAttribute('data-index'));
-          const carousel = document.getElementById('product-carousel');
-          const slides = carousel.querySelectorAll('.carousel-item');
-          
-          // Ocultar todas las diapositivas
-          slides.forEach(slide => slide.classList.add('hidden'));
-          
-          // Mostrar la diapositiva correspondiente
-          slides[index].classList.remove('hidden');
-          
-          // Actualizar las miniaturas
-          document.querySelectorAll('.thumbnail').forEach(thumb => {
-            thumb.classList.remove('active', 'ring', 'ring-red-500');
-          });
-          colorThumbnail.classList.add('active', 'ring', 'ring-red-500');
-        }
-      });
-    });
-    
-    // Seleccionar el primer color por defecto
+    // Configurar los botones de color con delegación de eventos
     if (colorOptions.length > 0) {
+      // Usar un solo listener para todos los botones de color
+      colorOptions.forEach(button => {
+        button.addEventListener('click', function() {
+          // Desactivar todos los botones de color
+          colorOptions.forEach(btn => {
+            btn.classList.remove('bg-gray-100', 'border-gray-400');
+            btn.setAttribute('aria-checked', 'false');
+          });
+          
+          // Activar el botón seleccionado
+          this.classList.add('bg-gray-100', 'border-gray-400');
+          this.setAttribute('aria-checked', 'true');
+          
+          // Actualizar el input oculto
+          const selectedColor = this.getAttribute('data-color');
+          selectedColorInput.value = selectedColor;
+          
+          // Actualizar las tallas disponibles
+          updateSizeOptions(selectedColor);
+          
+          // Actualizar la imagen principal si hay una miniatura con este color
+          const colorThumbnail = document.querySelector(`.thumbnail[data-color="${selectedColor}"]`);
+          if (colorThumbnail) {
+            const index = parseInt(colorThumbnail.getAttribute('data-index'));
+            // Usar la función showSlide del carrusel para actualizar la imagen
+            const thumbnailEvent = new Event('click');
+            colorThumbnail.dispatchEvent(thumbnailEvent);
+          }
+        });
+      });
+      
+      // Seleccionar el primer color por defecto
       colorOptions[0].click();
     }
   }
   
-  // La función initStarRating ya no es necesaria porque se eliminó el formulario de reseñas
-  
   // Función para configurar el botón de agregar al carrito
-  function setupAddToCartButton() {
-    const addToCartButton = document.getElementById('add-to-cart-button');
-    const messageElement = document.getElementById('message');
+  function setupAddToCartButton(elements) {
+    const { addToCartButton, messageElement } = elements;
     
     if (addToCartButton) {
       addToCartButton.addEventListener('click', async (event) => {
@@ -566,8 +643,7 @@
         // Limpiar mensaje anterior
         messageElement.innerHTML = '';
         
-        // Obtener el token CSRF
-        const csrfToken = getCookie('csrftoken');
+        // El token CSRF ya está definido globalmente en base.html
         
         // Crear los datos para enviar
         const data = {
@@ -576,7 +652,7 @@
         };
         
         try {
-          // Realizar la petición fetch directamente en lugar de usar HTMX
+          // Realizar la petición fetch
           const response = await fetch(`/cart/add/{{ product.id }}/`, {
             method: 'POST',
             headers: {
@@ -616,21 +692,13 @@
     }
   }
   
-  // La función setupReviewForm se ha eliminado porque ya no es necesaria
-  
   // Función para actualizar la visualización de estrellas
   function updateStarRating(rating) {
-    const averageRatingElements = document.querySelectorAll('#average-rating');
-    averageRatingElements.forEach(element => {
-      let starsHtml = '';
-      for (let i = 1; i <= 5; i++) {
-        starsHtml += i <= rating ? '★' : '☆';
-      }
-      element.innerHTML = starsHtml;
+    document.querySelectorAll('#average-rating').forEach(element => {
+      element.innerHTML = Array.from({length: 5}, (_, i) => i < rating ? '★' : '☆').join('');
     });
     
-    const ratingTextElements = document.querySelectorAll('#average-rating + span');
-    ratingTextElements.forEach(element => {
+    document.querySelectorAll('#average-rating + span').forEach(element => {
       element.textContent = `(${rating}/5)`;
     });
   }
@@ -651,92 +719,140 @@
   
   // Función para añadir un producto a los vistos recientemente
   function addToRecentlyViewed(id, name, image, price) {
-    // Obtener los productos vistos recientemente del localStorage
-    let recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
-    
-    // Eliminar el producto actual si ya está en la lista
-    recentlyViewed = recentlyViewed.filter(product => product.id !== id);
-    
-    // Añadir el producto al principio de la lista
-    recentlyViewed.unshift({
-      id,
-      name,
-      image,
-      price,
-      timestamp: Date.now()
-    });
-    
-    // Limitar la lista a 4 productos
-    recentlyViewed = recentlyViewed.slice(0, 4);
-    
-    // Guardar la lista actualizada en localStorage
-    localStorage.setItem('recentlyViewed', JSON.stringify(recentlyViewed));
+    try {
+      // Obtener los productos vistos recientemente del localStorage
+      let recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
+      
+      // Eliminar el producto actual si ya está en la lista
+      recentlyViewed = recentlyViewed.filter(product => product.id !== id);
+      
+      // Añadir el producto al principio de la lista
+      recentlyViewed.unshift({
+        id,
+        name,
+        image,
+        price,
+        slug: '{{ product.slug }}',
+        timestamp: Date.now()
+      });
+      
+      // Limitar la lista a 4 productos
+      recentlyViewed = recentlyViewed.slice(0, 4);
+      
+      // Guardar la lista actualizada en localStorage
+      localStorage.setItem('recentlyViewed', JSON.stringify(recentlyViewed));
+    } catch (error) {
+      console.error('Error al guardar productos vistos recientemente:', error);
+    }
   }
   
   // Función para mostrar los productos vistos recientemente
   function displayRecentlyViewed() {
-    const recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
-    const container = document.getElementById('recently-viewed-container');
-    const section = document.getElementById('recently-viewed-section');
-    
-    // Si no hay productos vistos recientemente o solo está el producto actual, ocultar la sección
-    if (recentlyViewed.length <= 1) {
-      section.classList.add('hidden');
-      return;
+    try {
+      const recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
+      const container = document.getElementById('recently-viewed-container');
+      const section = document.getElementById('recently-viewed-section');
+      
+      // Si no hay productos vistos recientemente o solo está el producto actual, ocultar la sección
+      if (!recentlyViewed || recentlyViewed.length <= 1) {
+        section.classList.add('hidden');
+        return;
+      }
+      
+      // Mostrar la sección
+      section.classList.remove('hidden');
+      
+      // Limpiar el contenedor de forma segura
+      while (container.firstChild) {
+        container.removeChild(container.firstChild);
+      }
+      
+      // Crear un fragmento para mejorar el rendimiento
+      const fragment = document.createDocumentFragment();
+      
+      // Mostrar los productos vistos recientemente (excluyendo el producto actual)
+      recentlyViewed
+        .filter(product => product && product.id !== {{ product.id }})
+        .forEach(product => {
+          // Crear el elemento principal del producto
+          const productElement = document.createElement('div');
+          productElement.className = 'overflow-hidden relative bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 group';
+          
+          // Crear el enlace
+          const productLink = document.createElement('a');
+          productLink.href = `/product/${product.id}/${product.slug || 'producto'}/`;
+          productLink.className = 'block';
+          productLink.setAttribute('aria-label', `Ver detalles de ${product.name || 'producto'}`);
+          
+          // Crear el contenedor de la imagen
+          const imageContainer = document.createElement('div');
+          imageContainer.className = 'overflow-hidden relative w-full h-48';
+          
+          // Crear la imagen
+          const productImage = document.createElement('img');
+          if (product.image) {
+            productImage.src = product.image;
+            productImage.alt = product.name || 'Producto';
+            productImage.className = 'object-cover w-full h-full transition-transform duration-500 transform group-hover:scale-110';
+            productImage.loading = 'lazy';
+          }
+          
+          // Crear el contenedor de información
+          const infoContainer = document.createElement('div');
+          infoContainer.className = 'p-4';
+          
+          // Crear el título
+          const productTitle = document.createElement('h3');
+          productTitle.className = 'h-12 text-base font-medium text-gray-900 uppercase line-clamp-2';
+          productTitle.textContent = product.name || 'Producto';
+          
+          // Crear el contenedor del precio
+          const priceContainer = document.createElement('div');
+          priceContainer.className = 'flex items-center mt-1.5 sm:mt-2';
+          
+          // Crear el precio
+          const priceElement = document.createElement('span');
+          priceElement.className = 'text-base font-bold text-red-600';
+          priceElement.textContent = `S/ ${product.price || 0}`;
+          
+          // Añadir todos los elementos de forma jerárquica
+          priceContainer.appendChild(priceElement);
+          infoContainer.appendChild(productTitle);
+          infoContainer.appendChild(priceContainer);
+          imageContainer.appendChild(productImage);
+          productLink.appendChild(imageContainer);
+          productLink.appendChild(infoContainer);
+          productElement.appendChild(productLink);
+          fragment.appendChild(productElement);
+        });
+        
+      // Añadir todos los elementos de una vez
+      container.appendChild(fragment);
+    } catch (error) {
+      console.error('Error al mostrar productos vistos recientemente:', error);
     }
-    
-    // Mostrar la sección
-    section.classList.remove('hidden');
-    
-    // Limpiar el contenedor
-    container.innerHTML = '';
-    
-    // Mostrar los productos vistos recientemente (excluyendo el producto actual)
-    recentlyViewed
-      .filter(product => product.id !== {{ product.id }})
-      .forEach(product => {
-        const productElement = document.createElement('div');
-        productElement.className = 'overflow-hidden relative bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 group';
-        productElement.innerHTML = `
-          <a href="/products/${product.id}/" class="block">
-            <div class="overflow-hidden relative w-full h-48">
-              <img src="${product.image}" alt="${product.name}"
-                   class="object-cover w-full h-full transition-transform duration-500 transform group-hover:scale-110">
-            </div>
-            <div class="p-4">
-              <h3 class="h-12 text-base font-medium text-gray-900 uppercase line-clamp-2">${product.name}</h3>
-              <div class="flex items-center mt-1.5 sm:mt-2">
-                <span class="text-base font-bold text-red-600">S/ ${product.price}</span>
-              </div>
-            </div>
-          </a>
-        `;
-        container.appendChild(productElement);
-      });
   }
   
   // Función para inicializar los controles de navegación para productos relacionados
-  function initRelatedProductsNavigation() {
-    const prevButton = document.getElementById('related-prev');
-    const nextButton = document.getElementById('related-next');
-    const container = document.getElementById('related-products-container');
+  function initRelatedProductsNavigation(elements) {
+    const { relatedPrevButton, relatedNextButton, relatedContainer } = elements;
     
-    if (prevButton && nextButton && container) {
+    if (relatedPrevButton && relatedNextButton && relatedContainer) {
       // Implementar navegación horizontal para dispositivos móviles
       let scrollAmount = 0;
       const scrollStep = 300;
       
-      prevButton.addEventListener('click', () => {
+      relatedPrevButton.addEventListener('click', () => {
         scrollAmount = Math.max(0, scrollAmount - scrollStep);
-        container.scrollTo({
+        relatedContainer.scrollTo({
           left: scrollAmount,
           behavior: 'smooth'
         });
       });
       
-      nextButton.addEventListener('click', () => {
-        scrollAmount = Math.min(container.scrollWidth - container.clientWidth, scrollAmount + scrollStep);
-        container.scrollTo({
+      relatedNextButton.addEventListener('click', () => {
+        scrollAmount = Math.min(relatedContainer.scrollWidth - relatedContainer.clientWidth, scrollAmount + scrollStep);
+        relatedContainer.scrollTo({
           left: scrollAmount,
           behavior: 'smooth'
         });

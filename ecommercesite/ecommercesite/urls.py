@@ -4,9 +4,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 from products import views
 from social_django import urls as social_urls  # Import social_django URLs
+from ecommercesite.admin import custom_admin_site
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('panel-control/', custom_admin_site.urls),
     path("cart/", include('cart.urls')),
     path("orders/", include("orders.urls")),
     path('coupons/', include('coupons.urls', namespace='coupons')), # Añadir las URLs de cupones

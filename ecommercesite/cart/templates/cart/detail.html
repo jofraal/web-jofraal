@@ -1,21 +1,23 @@
 {% extends "core/base.html" %}
 {% block title %}Mi Carrito{% endblock %}
 {% block content %}
-<div class="py-8 min-h-screen bg-gray-50">
-    <div class="flex flex-col gap-6 px-4 mx-auto max-w-6xl lg:flex-row">
-        <div class="lg:w-2/3">
-            <div id="cart-container" class="p-6 bg-white rounded-xl shadow-lg">
-                {% include 'cart/cart_partial.html' with cart=cart total=cart.get_final_total %}
+<main class="px-0 py-6 mx-0 w-full min-h-screen bg-white sm:py-8">
+    <div class="container px-4 mx-auto bg-white">
+        {% include 'core/includes/breadcrumbs.html' with breadcrumbs=breadcrumbs %}
+        <div class="flex flex-col gap-4 mx-auto max-w-6xl sm:gap-6 lg:flex-row">
+            <div class="lg:w-2/3">
+                <div id="cart-container" class="p-6 bg-white rounded-xl shadow-lg">
+                    {% include 'cart/cart_partial.html' with cart=cart total=cart.get_final_total csrf_token=csrf_token %}
+                </div>
             </div>
-        </div>
-        <div class="lg:w-1/3">
-            <div class="sticky top-8 p-6 bg-white rounded-xl shadow-lg">
-                <h2 class="mb-4 text-lg font-medium">Ideas de estilo basadas en tu carrito</h2>
-                <div id="suggestions-container" class="space-y-4"
-                     hx-get="{% url 'cart:get_suggestions' %}"
-                     hx-trigger="load delay:500ms, suggestionsUpdated from:body"
-                     hx-swap="innerHTML"
-                     {% if not cart.items.exists %}hx-get=""{% endif %}>
+            <div class="lg:w-1/3">
+                <div class="sticky top-8 p-6 bg-white rounded-xl shadow-lg">
+                    <h2 class="mb-4 text-lg font-medium">Ideas de estilo basadas en tu carrito</h2>
+                    <div id="suggestions-container" class="space-y-4"
+                         hx-get="{% url 'cart:get_suggestions' %}"
+                         hx-trigger="load delay:500ms, suggestionsUpdated from:body"
+                         hx-swap="innerHTML"
+                         {% if not cart.items.exists %}hx-get=""{% endif %}>
                     {% if cart.items.exists %}
                         {% for suggestion in suggestions %}
                         <div class="flex flex-col gap-4 p-4 rounded-lg border sm:flex-row">
@@ -49,29 +51,34 @@
             </div>
         </div>
     </div>
-</div>
+</main>
+{% endblock %}
 
+{% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const csrfToken = '{{ csrf_token }}';
-        document.body.addEventListener('htmx:configRequest', (event) => {
-            // Asegurar que el token CSRF siempre esté presente
-            event.detail.headers['X-CSRFToken'] = csrfToken;
-            
-            // Asegurar que los encabezados personalizados estén correctamente configurados
-            if (event.detail.headers['X-Trigger-Suggestions']) event.detail.headers['X-Trigger-Suggestions'] = 'true';
-            if (event.detail.headers['X-Trigger-Cart-Update']) event.detail.headers['X-Trigger-Cart-Update'] = 'true';
-            
-            // Agregar indicador de carga para mejorar la experiencia del usuario
-            const targetElem = document.querySelector(event.detail.target);
-            if (targetElem) {
-                targetElem.classList.add('htmx-request-in-flight');
+        document.body.addEventListener('htmx:beforeSwap', (event) => {
+            // Guardar posición de scroll y fijar altura antes de reemplazar el carrito
+            if (event.detail.target && event.detail.target.id === 'cart-container') {
+                window._cartScrollY = window.scrollY;
+                const container = event.detail.target;
+                container.style.minHeight = container.offsetHeight + 'px';
             }
         });
 
-        // Eliminamos el manejo del botón de pago con Mercado Pago que estaba interceptando eventos
-        // Ya no necesitamos este bloque porque el botón 'Continuar compra' debe funcionar con su href nativo
-        // y no debe ser interceptado por JavaScript
+        document.body.addEventListener('htmx:afterSettle', (event) => {
+            // Restaurar posición de scroll después de que el DOM se estabilice
+            if (event.detail.target && event.detail.target.id === 'cart-container') {
+                if (window._cartScrollY !== undefined) {
+                    window.scrollTo({ top: window._cartScrollY, behavior: 'instant' });
+                    delete window._cartScrollY;
+                }
+                // Quitar altura fija después del settle
+                if (event.detail.target.style.minHeight) {
+                    event.detail.target.style.minHeight = '';
+                }
+            }
+        });
 
         document.body.addEventListener('htmx:afterSwap', (event) => {
             const cartTotal = event.detail.xhr.getResponseHeader('X-Cart-Total');
@@ -85,7 +92,7 @@
                 document.getElementById('total').textContent = `S/ ${parseFloat(cartTotal).toFixed(2)}`;
             }
             if (event.detail.xhr.getResponseHeader('X-Trigger-Cart-Update') === 'true') {
-                console.log('Disparando cartUpdated'); // Para depuración
+                console.log('Disparando cartUpdated');
                 document.body.dispatchEvent(new CustomEvent('cartUpdated'));
             }
             if (event.detail.xhr.getResponseHeader('X-Trigger-Suggestions') === 'true') {

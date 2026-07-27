@@ -64,7 +64,8 @@
                         data-action="decrease"
                         hx-post="{% url 'cart:decrease_quantity' item.id %}"
                         hx-target="#cart-container"
-                        hx-swap="innerHTML">
+                        hx-swap="innerHTML"
+                        hx-headers='{"X-CSRFToken": "{{ csrf_token }}", "X-Trigger-Cart-Update": "true"}'>
                     <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
                     </svg>
@@ -74,7 +75,8 @@
                         data-action="increase"
                         hx-post="{% url 'cart:increase_quantity' item.id %}"
                         hx-target="#cart-container"
-                        hx-swap="innerHTML">
+                        hx-swap="innerHTML"
+                        hx-headers='{"X-CSRFToken": "{{ csrf_token }}", "X-Trigger-Cart-Update": "true"}'>
                     <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>

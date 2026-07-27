@@ -1,32 +1,39 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}John Holden{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'dist/output.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/notifications.css' %}">
+    <link rel="stylesheet" href="{% static 'css/campaign.css' %}">
     <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <meta name="description" content="Tienda virtual con los mejores productos al mejor precio.">
     <meta name="keywords" content="tienda, productos, ecommerce, descuentos">
     <meta name="author" content="Jonathan Fraal">
-    <!-- Agregar HTMX -->
-    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- HTMX y SweetAlert2 locales (sin CDN) -->
+    <script src="{% static 'vendor/js/htmx.min.js' %}"></script>
+    <script src="{% static 'vendor/js/sweetalert2.min.js' %}"></script>
     <script src="{% static 'js/notifications.js' %}"></script>
     <!-- Estilos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'vendor/css/font-awesome.min.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
     <!-- Configuración del token CSRF para HTMX -->
-    {% csrf_token %}
     <meta name="csrf-token" content="{{ csrf_token }}">
     <script>
         const csrfToken = '{{ csrf_token }}';
-        const mercadopagoConfig = {{ mercadopago_config|safe }}; // Configuración segura de Mercado Pago
+        // Configurar HTMX para usar el token CSRF en todas las peticiones
+        document.body.addEventListener('htmx:configRequest', (event) => {
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            if (token) {
+                event.detail.headers['X-CSRFToken'] = token;
+            }
+            if (event.detail.verb === 'delete') {
+                event.detail.headers['X-HTTP-Method-Override'] = 'DELETE';
+            }
+        });
     </script>
     <style>
         .playfair { font-family: 'Playfair Display', serif; }
@@ -34,46 +41,73 @@
     </style>
     <link rel="stylesheet" href="{% static 'css/starability.css' %}">
 </head>
-<body class="flex flex-col min-h-screen text-gray-800 bg-gray-100">
+<body class="flex flex-col min-h-screen text-gray-800 bg-white {% if user.is_authenticated %}user-authenticated{% endif %}">
+
+<!-- Barra de progreso HTMX global -->
+<div id="htmx-progress-bar"><div class="bar"></div></div>
     <!-- Encabezado -->
     <header class="shadow-md">
         {% include 'core/includes/nav.html' %}
     </header>
 
-    <!-- Contenido Principal -->
-    <main class="container flex-grow py-8 mx-auto">
+    <!-- Hero / Full-width sections (videos, banners) -->
+    {% block hero %}{% endblock %}
+
+    <!-- Contenido Principal - Mejorado para móvil -->
+    <main class="container flex-grow py-6 mx-auto sm:py-8">
         {% block content %}{% endblock %}
     </main>
 
     <!-- Pie de Página -->
     {% include 'core/includes/footer.html' %}
 
-    <!-- Configuración de HTMX para incluir el token CSRF en las solicitudes -->
+    <!-- Bloque para scripts adicionales -->
+    {% block extra_js %}{% endblock %}
+    
+    <!-- HTMX Progress Bar & Cart Animation -->
     <script>
-        document.body.addEventListener('htmx:configRequest', (event) => {
-            // Obtener el token CSRF de la meta etiqueta
-            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            if (token) {
-                // Asegurar que el token CSRF se incluya en todas las solicitudes HTMX
-                event.detail.headers['X-CSRFToken'] = token;
-            }
-            
-            // Asegurar que las solicitudes DELETE se procesen correctamente
-            if (event.detail.verb === 'delete') {
-                // Forzar el método DELETE para que Django lo procese correctamente
-                event.detail.headers['X-HTTP-Method-Override'] = 'DELETE';
+        // Barra de progreso HTMX
+        document.body.addEventListener('htmx:beforeRequest', function() {
+            document.getElementById('htmx-progress-bar').classList.add('htmx-request');
+        });
+        document.body.addEventListener('htmx:afterRequest', function() {
+            var bar = document.getElementById('htmx-progress-bar');
+            bar.classList.add('loading-complete');
+            setTimeout(function() {
+                bar.classList.remove('htmx-request', 'loading-complete');
+            }, 200);
+        });
+        
+        // Animación del carrito
+        document.body.addEventListener('htmx:afterRequest', function(evt) {
+            if (evt.detail.pathInfo.requestPath === '/en/cart/add/' || 
+                evt.detail.pathInfo.requestPath === '/cart/add/' ||
+                evt.detail.pathInfo.requestPath === '/en/cart/increase/' || 
+                evt.detail.pathInfo.requestPath === '/cart/increase/') {
+                var cartIcon = document.querySelector('a[href*="cart"] svg');
+                if (cartIcon) {
+                    cartIcon.classList.add('cart-bounce');
+                    setTimeout(function() { cartIcon.classList.remove('cart-bounce'); }, 500);
+                }
             }
         });
 
-        // Inicializar HTMX después de que la página se cargue completamente
-        document.addEventListener('DOMContentLoaded', function() {
-            // Verificar si hay elementos con atributos HTMX que necesiten ser reinicializados
-            if (typeof htmx !== 'undefined') {
-                htmx.process(document.body);
-            }
+        // Actualizar contador del carrito al recibir evento cartUpdated
+        document.body.addEventListener('cartUpdated', function() {
+            var counter = document.getElementById('cart-counter');
+            if (!counter) return;
+            fetch('/cart/get-count/')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    counter.textContent = data.count;
+                    if (data.count > 0) {
+                        counter.classList.remove('hidden');
+                    } else {
+                        counter.classList.add('hidden');
+                    }
+                })
+                .catch(function() { /* silencioso */ });
         });
     </script>
-    <!-- Bloque para scripts adicionales -->
-    {% block extra_js %}{% endblock %}
 </body>
 </html>

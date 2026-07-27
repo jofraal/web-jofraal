@@ -1,46 +1,49 @@
 {% load static %}
 {% block content %}
-<section class="py-8 bg-gray-50 md:py-12">
+<section class="py-10 bg-gradient-to-b from-white to-gray-50 md:py-14">
   <div class="container px-4 mx-auto max-w-7xl">
-    <h2 class="mb-8 text-2xl font-bold text-center text-gray-800 md:text-3xl">Ofertas Especiales</h2>
+    <h2 class="inline-block relative mx-auto mb-10 w-auto text-2xl font-bold text-center text-gray-800 md:text-3xl">
+      <span class="relative z-10">Ofertas Especiales</span>
+      <span class="absolute bottom-0 left-0 w-full h-2 bg-blue-300 opacity-50 -z-10"></span>
+    </h2>
     
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 promo-container">
+    <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 promo-container">
       <!-- Promoción 1 -->
-      <div class="overflow-hidden bg-white rounded-xl shadow-lg opacity-0 transition-all duration-700 ease-out translate-y-16 promo-card group">
+      <div class="overflow-hidden bg-white rounded-xl shadow-xl opacity-0 transition-all duration-700 ease-out translate-y-16 promo-card group hover:shadow-2xl hover:-translate-y-2">
         <a href="#" target="_blank" rel="noopener noreferrer" class="block overflow-hidden relative">
           <img src="{% static 'images/promotion1.jpg' %}" alt="Promoción 1" loading="lazy" 
-               class="object-cover w-full h-48 transition-transform duration-300 transform sm:h-56 md:h-64 group-hover:scale-105">
+               class="object-cover w-full h-48 transition-transform duration-500 transform sm:h-56 md:h-64 group-hover:scale-110 group-hover:brightness-105">
         </a>
-        <div class="p-5">
+        <div class="p-6">
           <h3 class="text-lg font-semibold text-gray-900 md:text-xl">Descuento del 50%</h3>
-          <p class="mt-1 text-sm text-gray-600 md:text-base">En toda la colección de verano.</p>
-          <a href="#" class="inline-block mt-3 text-sm font-medium text-blue-600 transition-colors duration-200 hover:text-blue-800 md:text-base">Ver más</a>
+          <p class="mt-2 text-sm text-gray-600 md:text-base">En toda la colección de verano.</p>
+          <a href="#" class="inline-block px-4 py-2 mt-4 text-sm font-medium text-white bg-blue-500 rounded-full transition-all duration-300 transform hover:bg-blue-600 hover:shadow-md hover:-translate-y-1 md:text-base">Ver más</a>
         </div>
       </div>
 
       <!-- Promoción 2 -->
-      <div class="overflow-hidden bg-white rounded-xl shadow-lg opacity-0 transition-all duration-700 ease-out translate-y-16 promo-card group">
+      <div class="overflow-hidden bg-white rounded-xl shadow-xl opacity-0 transition-all duration-700 ease-out translate-y-16 promo-card group hover:shadow-2xl hover:-translate-y-2">
         <a href="#" target="_blank" rel="noopener noreferrer" class="block overflow-hidden relative">
           <img src="{% static 'images/promotion2.jpg' %}" alt="Promoción 2" loading="lazy" 
-               class="object-cover w-full h-48 transition-transform duration-300 transform sm:h-56 md:h-64 group-hover:scale-105">
+               class="object-cover w-full h-48 transition-transform duration-500 transform sm:h-56 md:h-64 group-hover:scale-110 group-hover:brightness-105">
         </a>
-        <div class="p-5">
+        <div class="p-6">
           <h3 class="text-lg font-semibold text-gray-900 md:text-xl">Envío Gratis</h3>
-          <p class="mt-1 text-sm text-gray-600 md:text-base">En compras superiores a $50.</p>
-          <a href="#" class="inline-block mt-3 text-sm font-medium text-blue-600 transition-colors duration-200 hover:text-blue-800 md:text-base">Ver más</a>
+          <p class="mt-2 text-sm text-gray-600 md:text-base">En compras superiores a $50.</p>
+          <a href="#" class="inline-block px-4 py-2 mt-4 text-sm font-medium text-white bg-blue-500 rounded-full transition-all duration-300 transform hover:bg-blue-600 hover:shadow-md hover:-translate-y-1 md:text-base">Ver más</a>
         </div>
       </div>
 
       <!-- Promoción 3 -->
-      <div class="overflow-hidden bg-white rounded-xl shadow-lg opacity-0 transition-all duration-700 ease-out translate-y-16 promo-card group">
+      <div class="overflow-hidden bg-white rounded-xl shadow-xl opacity-0 transition-all duration-700 ease-out translate-y-16 promo-card group hover:shadow-2xl hover:-translate-y-2">
         <a href="#" target="_blank" rel="noopener noreferrer" class="block overflow-hidden relative">
           <img src="{% static 'images/promotion3.jpg' %}" alt="Promoción 3" loading="lazy" 
-               class="object-cover w-full h-48 transition-transform duration-300 transform sm:h-56 md:h-64 group-hover:scale-105">
+               class="object-cover w-full h-48 transition-transform duration-500 transform sm:h-56 md:h-64 group-hover:scale-110 group-hover:brightness-105">
         </a>
-        <div class="p-5">
+        <div class="p-6">
           <h3 class="text-lg font-semibold text-gray-900 md:text-xl">Nueva Colección</h3>
-          <p class="mt-1 text-sm text-gray-600 md:text-base">Explora nuestra nueva línea de productos.</p>
-          <a href="#" class="inline-block mt-3 text-sm font-medium text-blue-600 transition-colors duration-200 hover:text-blue-800 md:text-base">Ver más</a>
+          <p class="mt-2 text-sm text-gray-600 md:text-base">Explora nuestra nueva línea de productos.</p>
+          <a href="#" class="inline-block px-4 py-2 mt-4 text-sm font-medium text-white bg-blue-500 rounded-full transition-all duration-300 transform hover:bg-blue-600 hover:shadow-md hover:-translate-y-1 md:text-base">Ver más</a>
         </div>
       </div>
     </div>
@@ -55,12 +58,34 @@
 
   .promo-card {
     transition-delay: 0.2s; /* Delay ligero para una entrada escalonada */
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 500ms;
+    position: relative;
+    overflow: hidden;
   }
 
   /* Estado visible */
   .is-visible .promo-card {
     opacity: 1;
     transform: translateY(0);
+  }
+
+  /* Efecto de brillo al hover */
+  .promo-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: 0.5s;
+    pointer-events: none;
+  }
+
+  .promo-card:hover::after {
+    left: 100%;
   }
 
   @media (min-width: 640px) {
@@ -86,11 +111,19 @@
     function checkVisibility() {
       const rect = promoSection.getBoundingClientRect();
       const windowHeight = window.innerHeight || document.documentElement.clientHeight;
-      const triggerPoint = windowHeight * 0.85; // Activa cuando el 85% es visible
+      const triggerPoint = windowHeight * 0.75; // Activa cuando el 75% es visible para anticipar la animación
 
       if (rect.top <= triggerPoint && rect.bottom >= 0 && !isAnimated) {
+        // Añadir clase para activar animación
         promoSection.classList.add('is-visible');
         isAnimated = true;
+        
+        // Añadir efecto de entrada escalonada para cada tarjeta
+        promoCards.forEach((card, index) => {
+          setTimeout(() => {
+            card.classList.add('animate-in');
+          }, 150 * index); // Retraso escalonado para cada tarjeta
+        });
       }
     }
 
@@ -106,9 +139,22 @@
       }
     }
 
+    // Añadir efecto de hover para las tarjetas
+    promoCards.forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        card.classList.add('hover-effect');
+      });
+      
+      card.addEventListener('mouseleave', () => {
+        card.classList.remove('hover-effect');
+      });
+    });
+
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('resize', checkVisibility);
-    checkVisibility();
+    
+    // Verificar visibilidad al cargar la página
+    setTimeout(checkVisibility, 100);
   });
 </script>
 {% endblock %}

@@ -4,58 +4,85 @@ from django.http import JsonResponse, HttpResponseServerError
 from django.views.decorators.http import require_POST
 from django.core.exceptions import ValidationError
 import mercadopago
-from products.models import Product, Brand
+from products.models import Product, Brand, Category
 from .forms import ReclamacionForm
 from .models import Reclamacion, NewsletterSubscriber
-from bleach import clean
+from django.utils.html import strip_tags
 
 # Vista para la página principal (home)
 def home(request):
-    brands = Brand.objects.all().prefetch_related('products')
-    categories = ['men', 'women', 'unisex']
+    brands = Brand.objects.all().only('id', 'name', 'logo')
+    
+    # Obtener categorías y agrupar productos en 2 queries en vez de N+1
+    categories = list(Category.objects.all())
+    category_slugs = [c.slug for c in categories]
+    
+    # Una sola query para todos los productos de todas las categorías
+    all_products = list(Product.objects.filter(
+        available=True,
+        category__slug__in=category_slugs
+    ).select_related('category', 'brand').order_by('-created')[:50])
+    
+    # Agrupar en Python (gratis, sin queries extra)
     category_products = {}
-    for category in categories:
-        products = Product.objects.filter(category__slug=category).select_related('category', 'brand').prefetch_related('variants')[:3]
-        category_products[category] = products
+    for product in all_products:
+        cat_name = product.category.name
+        if cat_name not in category_products:
+            category_products[cat_name] = []
+        if len(category_products[cat_name]) < 3:
+            category_products[cat_name].append(product)
+    
+    categories_list = [
+        {'name': c.name, 'slug': c.slug}
+        for c in categories if c.name in category_products
+    ]
+    
     context = {
         'is_home_page': True,
         'category_products': category_products,
         'brands': brands,
+        'categories': categories_list,
     }
     return render(request, 'core/home.html', context)
 
-# Vista para crear una preferencia de pago con Mercado Pago
+# Vista para crear una preferencia de pago con Mercado Pago (legacy/dummy)
 def create_payment_preference(request):
-    sdk = mercadopago.SDK(settings.MERCADO_PAGO_ACCESS_TOKEN)
-    preference_data = {
-        "items": [
-            {
-                "title": "Producto Ejemplo",
-                "quantity": 1,
-                "unit_price": 100.0,
-                "currency_id": "PEN",
-            }
-        ],
-        "back_urls": {
-            "success": request.build_absolute_uri('/cart/success/'),
-            "failure": request.build_absolute_uri('/cart/failure/'),
-            "pending": request.build_absolute_uri('/cart/pending/'),
-        },
-        "auto_return": "approved",
-    }
-    preference_response = sdk.preference().create(preference_data)
-    preference = preference_response["response"]
-    return JsonResponse({"id": preference["id"]})
+    try:
+        sdk = mercadopago.SDK(settings.MERCADO_PAGO_ACCESS_TOKEN)
+        preference_data = {
+            "items": [
+                {
+                    "title": "Producto Ejemplo",
+                    "quantity": 1,
+                    "unit_price": 100.0,
+                    "currency_id": "PEN",
+                }
+            ],
+            "back_urls": {
+                "success": request.build_absolute_uri('/orders/success/'),
+                "failure": request.build_absolute_uri('/orders/failure/'),
+                "pending": request.build_absolute_uri('/orders/pending/'),
+            },
+            "auto_return": "all",
+        }
+        preference_response = sdk.preference().create(preference_data)
+        preference = preference_response["response"]
+        return JsonResponse({"id": preference["id"]})
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error en create_payment_preference: {e}")
+        return JsonResponse({"error": "Error al crear preferencia de pago"}, status=500)
 
-# Vistas para manejar los resultados del pago
+# Vistas legacy para resultados de pago — redirigen a las de orders
 def payment_success(request):
-    return render(request, 'core/payment_success.html')
+    return redirect('orders:payment_success')
 
 def payment_failure(request):
-    return render(request, 'core/payment_failure.html')
+    return redirect('orders:payment_failure')
 
 def payment_pending(request):
-    return render(request, 'core/payment_pending.html')
+    return redirect('orders:payment_pending')
 
 # Vista para el formulario de reclamaciones
 def complaint_form(request):
@@ -63,7 +90,7 @@ def complaint_form(request):
         form = ReclamacionForm(request.POST)
         if form.is_valid():
             reclamacion = form.save(commit=False)
-            reclamacion.descripcion = clean(reclamacion.descripcion)  # Sanitizar entrada
+            reclamacion.descripcion = strip_tags(reclamacion.descripcion)  # Sanitizar entrada
             reclamacion.save()
             return redirect('core:complaint_success', reclamacion_id=reclamacion.id)
     else:

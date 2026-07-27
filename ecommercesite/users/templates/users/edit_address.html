@@ -1,0 +1,565 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{% if is_new %}Agregar{% else %}Editar{% endif %} Dirección - {{ user.first_name|default:user.username }}{% endblock %}
+
+{% block extra_head %}
+<!-- Tailwind CSS incluido desde /static/dist/styles.css para producción -->
+<link href="/static/dist/styles.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<main class="px-0 py-8 mx-0 w-full min-h-screen bg-white">
+    <div class="container px-4 mx-auto bg-white">
+        <!-- Mensaje de bienvenida para móvil -->
+        <div class="block p-4 mb-6 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-md md:hidden">
+            <h2 class="text-xl font-bold text-white">¡Hola, {{ user.first_name|default:user.username }}!</h2>
+            <p class="mt-1 text-sm text-white opacity-90">Bienvenido a tu perfil personal</p>
+        </div>
+
+        <div class="flex flex-col gap-6 md:flex-row">
+            <!-- Menú lateral -->
+            <aside class="w-full md:w-1/4 lg:w-1/5">
+                <!-- Mensaje de bienvenida para desktop -->
+                <div class="hidden p-6 mb-6 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-md md:block">
+                    <h2 class="text-xl font-bold text-white">¡Hola, {{ user.first_name|default:user.username }}!</h2>
+                    <p class="mt-2 text-sm text-white opacity-90">Bienvenido a tu perfil personal</p>
+                </div>
+
+                <!-- Menú de navegación -->
+                <div class="overflow-hidden bg-white rounded-lg border border-gray-200 shadow-sm">
+                    <div class="divide-y divide-gray-200">
+                        <!-- Datos personales -->
+                        <a href="{% url 'users:profile' %}" class="flex items-center p-4 space-x-3 text-gray-700 menu-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500 menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            <span>Datos personales</span>
+                        </a>
+
+                        <!-- Direcciones -->
+                        <a href="{% url 'users:addresses' %}" class="flex items-center p-4 space-x-3 text-gray-700 menu-item active">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500 menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span>Direcciones</span>
+                        </a>
+
+                        <!-- Medios de pago -->
+                        <a href="{% url 'users:payment_methods' %}" class="flex items-center p-4 space-x-3 text-gray-700 menu-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500 menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                            </svg>
+                            <span>Medios de pago</span>
+                        </a>
+
+                        <!-- Datos para reembolso -->
+                        <a href="{% url 'users:refund_info' %}" class="flex items-center p-4 space-x-3 text-gray-700 menu-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500 menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                            </svg>
+                            <span>Datos para reembolso</span>
+                        </a>
+
+                        <!-- Historial de pedidos -->
+                        <a href="{% url 'users:order_history' %}" class="flex items-center p-4 space-x-3 text-gray-700 menu-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500 menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            <span>Mis pedidos</span>
+                        </a>
+
+                        <!-- Mis listas -->
+                        <a href="{% url 'users:wishlists' %}" class="flex items-center p-4 space-x-3 text-gray-700 menu-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500 menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                            <span>Mis listas</span>
+                        </a>
+
+                        <!-- Configurar mi cuenta -->
+                        <a href="{% url 'users:account_settings' %}" class="flex items-center p-4 space-x-3 text-gray-700 menu-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500 menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span>Configurar mi cuenta</span>
+                        </a>
+
+                        <!-- Cerrar sesión -->
+                        <a href="{% url 'users:logout' %}" class="flex items-center p-4 space-x-3 text-red-600 menu-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-500 menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            <span>Cerrar sesión</span>
+                        </a>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Contenido principal -->
+            <div class="w-full md:w-3/4 lg:w-4/5">
+                <div class="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
+                    <h2 class="mb-6 text-xl font-bold text-gray-900 playfair">{% if is_new %}Agregar{% else %}Editar{% endif %} Dirección</h2>
+                    
+                    <form method="post" action="{% if address %}{% url 'users:edit_address' address.id %}{% else %}{% url 'users:add_address' %}{% endif %}" class="space-y-6">
+                        {% csrf_token %}
+                        
+                        {% if messages %}
+                        <div class="mb-4">
+                            {% for message in messages %}
+                                <div class="p-4 {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-blue-100 text-blue-700{% endif %} rounded-md">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Departamento, Provincia, Distrito -->
+                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                            <!-- Departamento -->
+                            <div>
+                                <label for="department" class="block mb-2 text-sm font-medium text-gray-700">Departamento</label>
+                                <select name="department" id="department" class="p-3 w-full bg-white rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option value="">Selecciona un departamento</option>
+                                    <!-- Las opciones se cargarán dinámicamente -->
+                                </select>
+                            </div>
+                            
+                            <!-- Provincia -->
+                            <div>
+                                <label for="province" class="block mb-2 text-sm font-medium text-gray-700">Provincia</label>
+                                <select name="province" id="province" class="p-3 w-full bg-white rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" disabled>
+                                    <option value="">Selecciona una provincia</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Distrito -->
+                            <div>
+                                <label for="district" class="block mb-2 text-sm font-medium text-gray-700">Distrito</label>
+                                <select name="district" id="district" class="p-3 w-full bg-white rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" disabled>
+                                    <option value="">Selecciona un distrito</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Dirección detallada -->
+                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            <!-- Calle/Avenida -->
+                            <div>
+                                <label for="street" class="block mb-2 text-sm font-medium text-gray-700">Calle/Avenida</label>
+                                <input type="text" name="street" id="street" value="{{ address.street }}" class="p-3 w-full bg-white rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Av. Los Pinos, Jr. Las Flores, etc.">
+                            </div>
+                            
+                            <!-- Número/Lote -->
+                            <div>
+                                <label for="street_number" class="block mb-2 text-sm font-medium text-gray-700">Número/Lote</label>
+                                <input type="text" name="street_number" id="street_number" value="{{ address.street_number }}" class="p-3 w-full bg-white rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="123, Mz. A Lt. 5, etc.">
+                            </div>
+                        </div>
+                        
+                        <!-- Los campos Destinatario, País y Tipo de dirección han sido eliminados -->
+                        
+                        <!-- Información adicional -->
+                        <div>
+                            <label for="additional_info" class="block mb-2 text-sm font-medium text-gray-700">Referencias adicionales</label>
+                            <textarea name="additional_info" id="additional_info" rows="2" class="p-3 w-full bg-white rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Frente al parque, edificio azul, etc.">{{ address.additional_info }}</textarea>
+                            <p class="mt-1 text-xs text-gray-500">Incluye referencias que faciliten la ubicación de tu dirección</p>
+                        </div>
+                        
+                        <!-- Mapa de Google -->
+                        <div class="mt-6">
+                            <label class="block mb-2 text-sm font-medium text-gray-700">Ubicación en el mapa</label>
+                            <button type="button" id="confirm-location" class="px-4 py-2 mb-3 text-sm font-medium text-white bg-green-600 rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-300">
+                                Confirmar ubicación
+                            </button>
+                            <div id="map-container" class="hidden">
+                                <div id="map" class="mb-2 w-full h-64 rounded-md border border-gray-300"></div>
+                                <div id="address-display" class="hidden p-3 mb-2 text-sm bg-gray-100 rounded-md border border-gray-300"></div>
+                                <input type="hidden" name="latitude" id="latitude" value="{{ address.latitude|default:'-12.046374' }}">
+                                <input type="hidden" name="longitude" id="longitude" value="{{ address.longitude|default:'-77.042793' }}">
+                                <p class="mt-1 text-xs text-gray-500">Haz clic en el mapa para seleccionar tu ubicación exacta</p>
+                            </div>
+                        </div>
+                        
+
+                        <!-- Dirección predeterminada -->
+                        <div class="flex items-center">
+                            <input type="checkbox" name="is_default" id="is_default" {% if address.is_default %}checked{% endif %} class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500">
+                            <label for="is_default" class="block ml-2 text-sm text-gray-700">Establecer como dirección predeterminada</label>
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="flex flex-wrap gap-4 justify-end pt-4">
+                            <a href="{% url 'users:addresses' %}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-300">
+                                Cancelar
+                            </a>
+                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-300">
+                                Guardar cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Script para manejar la navegación del menú
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar menú
+        const menuItems = document.querySelectorAll('.menu-item');
+        if (menuItems.length === 0) {
+            console.warn('No se encontraron elementos con la clase "menu-item".');
+        } else {
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    if (!this.href.includes('logout')) {
+                        menuItems.forEach(i => i.classList.remove('active'));
+                        this.classList.add('active');
+                    }
+                });
+            });
+        }
+        
+        // Inicializar valores preseleccionados para direcciones existentes
+        const departmentSelect = document.getElementById('department');
+        const provinceSelect = document.getElementById('province');
+        const districtSelect = document.getElementById('district');
+        
+        // Valores preseleccionados (si existen)
+        const selectedDepartment = "{{ address.department|default:'' }}";
+        const selectedProvince = "{{ address.province|default:'' }}";
+        const selectedDistrict = "{{ address.district|default:'' }}";
+        
+        console.log('Valores preseleccionados:', {
+            departamento: selectedDepartment,
+            provincia: selectedProvince,
+            distrito: selectedDistrict
+        });
+        
+        // Si hay un departamento seleccionado, establecerlo después de cargar los departamentos
+        if (selectedDepartment) {
+            const checkDepartmentLoaded = setInterval(function() {
+                if (departmentSelect && departmentSelect.options.length > 1) {
+                    clearInterval(checkDepartmentLoaded);
+                    
+                    // Seleccionar el departamento
+                    for (let i = 0; i < departmentSelect.options.length; i++) {
+                        if (departmentSelect.options[i].value === selectedDepartment) {
+                            departmentSelect.selectedIndex = i;
+                            // Disparar evento change para cargar provincias
+                            departmentSelect.dispatchEvent(new Event('change'));
+                            break;
+                        }
+                    }
+                    
+                    // Si hay una provincia seleccionada, establecerla después de cargar las provincias
+                    if (selectedProvince) {
+                        const checkProvinceLoaded = setInterval(function() {
+                            if (provinceSelect && provinceSelect.options.length > 1) {
+                                clearInterval(checkProvinceLoaded);
+                                
+                                // Seleccionar la provincia
+                                for (let i = 0; i < provinceSelect.options.length; i++) {
+                                    if (provinceSelect.options[i].value === selectedProvince) {
+                                        provinceSelect.selectedIndex = i;
+                                        // Disparar evento change para cargar distritos
+                                        provinceSelect.dispatchEvent(new Event('change'));
+                                        break;
+                                    }
+                                }
+                                
+                                // Si hay un distrito seleccionado, establecerlo después de cargar los distritos
+                                if (selectedDistrict) {
+                                    const checkDistrictLoaded = setInterval(function() {
+                                        if (districtSelect && districtSelect.options.length > 1) {
+                                            clearInterval(checkDistrictLoaded);
+                                            
+                                            // Seleccionar el distrito
+                                            for (let i = 0; i < districtSelect.options.length; i++) {
+                                                if (districtSelect.options[i].value === selectedDistrict) {
+                                                    districtSelect.selectedIndex = i;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }, 100);
+                                }
+                            }
+                        }, 100);
+                    }
+                }
+            }, 100);
+        }
+    });
+</script>
+
+<!-- Script para el mapa de Google -->
+<script>
+    let map;
+    let marker;
+    let geocoder;
+    let locationConfirmed = false;
+    let mapVisible = false;
+    let apiLoaded = false;
+    let apiError = false;
+    
+    // Función para manejar errores de carga de la API
+    function handleApiError() {
+        apiError = true;
+        const mapContainer = document.getElementById('map-container');
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-md';
+        errorMsg.innerHTML = '<strong>Error:</strong> No se pudo cargar el mapa de Google. El error "REQUEST_DENIED" indica que la clave API no es válida o no está configurada correctamente. Por favor, contacte al administrador del sitio.';
+        mapContainer.prepend(errorMsg);
+        
+        // Ocultar el botón de confirmar ubicación
+        const confirmButton = document.getElementById('confirm-location');
+        if (confirmButton) {
+            confirmButton.disabled = true;
+            confirmButton.classList.add('opacity-50', 'cursor-not-allowed');
+            confirmButton.classList.remove('hover:bg-green-700');
+        }
+    }
+    
+    function initMap() {
+        apiLoaded = true;
+        try {
+            // Inicializar el geocodificador
+            geocoder = new google.maps.Geocoder();
+            
+            // Obtener coordenadas iniciales (valores por defecto o guardados)
+            const lat = parseFloat(document.getElementById('latitude').value) || -12.046374;
+            const lng = parseFloat(document.getElementById('longitude').value) || -77.042793;
+            const initialPosition = { lat, lng };
+            
+            // Crear el mapa
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: initialPosition,
+                zoom: 15,
+                mapTypeControl: true,
+                streetViewControl: false
+            });
+            
+            // Crear el marcador arrastrable
+            marker = new google.maps.Marker({
+                position: initialPosition,
+                map: map,
+                draggable: true,
+                animation: google.maps.Animation.DROP,
+                title: 'Arrastra para ajustar la ubicación'
+            });
+        } catch (error) {
+            console.error('Error al inicializar el mapa:', error);
+            handleApiError();
+        }
+        
+        // Actualizar coordenadas cuando se arrastra el marcador
+        google.maps.event.addListener(marker, 'dragend', function() {
+            const position = marker.getPosition();
+            document.getElementById('latitude').value = position.lat();
+            document.getElementById('longitude').value = position.lng();
+            updateAddressFromCoordinates(position.lat(), position.lng());
+        });
+        
+        // Permitir hacer clic en el mapa para mover el marcador
+        google.maps.event.addListener(map, 'click', function(event) {
+            marker.setPosition(event.latLng);
+            document.getElementById('latitude').value = event.latLng.lat();
+            document.getElementById('longitude').value = event.latLng.lng();
+            updateAddressFromCoordinates(event.latLng.lat(), event.latLng.lng());
+        });
+        
+        // Buscar ubicación basada en la dirección cuando cambian los campos
+        document.getElementById('street').addEventListener('change', updateMapFromAddress);
+        document.getElementById('district').addEventListener('change', updateMapFromAddress);
+        
+        // Si ya hay coordenadas guardadas, mostrar la dirección
+        if (lat && lng && lat !== -12.046374 && lng !== -77.042793) {
+            updateAddressFromCoordinates(lat, lng);
+        }
+    }
+    
+    function updateMapFromAddress() {
+        const street = document.getElementById('street').value;
+        const streetNumber = document.getElementById('street_number').value;
+        const district = document.getElementById('district').value;
+        const province = document.getElementById('province').value;
+        const department = document.getElementById('department').value;
+        const addressDisplay = document.getElementById('address-display');
+        
+        // Verificar si la API está disponible
+        if (!geocoder || apiError) {
+            if (addressDisplay) {
+                addressDisplay.textContent = 'No se puede buscar la dirección: Error en la API de Google Maps';
+                addressDisplay.classList.remove('hidden');
+            }
+            return;
+        }
+        
+        if (street && district) {
+            const address = `${street} ${streetNumber}, ${district}, ${province}, ${department}, Perú`;
+            
+            try {
+                geocoder.geocode({ 'address': address }, function(results, status) {
+                    if (status === 'OK' && results[0]) {
+                        const location = results[0].geometry.location;
+                        map.setCenter(location);
+                        marker.setPosition(location);
+                        document.getElementById('latitude').value = location.lat();
+                        document.getElementById('longitude').value = location.lng();
+                        updateAddressFromCoordinates(location.lat(), location.lng());
+                    } else {
+                        // Manejar diferentes tipos de errores
+                        let errorMsg = 'Error al buscar la dirección: ';
+                        
+                        if (status === 'REQUEST_DENIED') {
+                            errorMsg += 'La solicitud fue denegada. Verifique que la clave API sea válida.';
+                        } else if (status === 'ZERO_RESULTS') {
+                            errorMsg += 'No se encontraron resultados para esta dirección.';
+                        } else if (status === 'OVER_QUERY_LIMIT') {
+                            errorMsg += 'Se ha excedido el límite de consultas diarias.';
+                        } else if (status === 'INVALID_REQUEST') {
+                            errorMsg += 'La solicitud es inválida.';
+                        } else {
+                            errorMsg += status;
+                        }
+                        
+                        if (addressDisplay) {
+                            addressDisplay.textContent = errorMsg;
+                            addressDisplay.classList.remove('hidden');
+                        }
+                        console.error(errorMsg);
+                    }
+                });
+            } catch (error) {
+                console.error('Error al geocodificar la dirección:', error);
+                if (addressDisplay) {
+                    addressDisplay.textContent = 'Error al procesar la dirección: ' + error.message;
+                    addressDisplay.classList.remove('hidden');
+                }
+            }
+        }
+    }
+    
+    function updateAddressFromCoordinates(lat, lng) {
+        const latlng = { lat: lat, lng: lng };
+        const addressDisplay = document.getElementById('address-display');
+        
+        if (!geocoder || apiError) {
+            addressDisplay.textContent = 'No se puede obtener la dirección: Error en la API de Google Maps';
+            addressDisplay.classList.remove('hidden');
+            return;
+        }
+        
+        geocoder.geocode({ 'location': latlng }, function(results, status) {
+            if (status === 'OK') {
+                if (results[0]) {
+                    // Mostrar la dirección encontrada
+                    addressDisplay.textContent = 'Dirección: ' + results[0].formatted_address;
+                    addressDisplay.classList.remove('hidden');
+                } else {
+                    addressDisplay.textContent = 'No se encontró ninguna dirección para esta ubicación';
+                    addressDisplay.classList.remove('hidden');
+                }
+            } else {
+                // Manejar diferentes tipos de errores
+                let errorMsg = 'Error al obtener la dirección: ';
+                
+                if (status === 'REQUEST_DENIED') {
+                    errorMsg += 'La solicitud fue denegada. Verifique que la clave API sea válida y esté habilitada para Geocoding API.';
+                } else if (status === 'OVER_QUERY_LIMIT') {
+                    errorMsg += 'Se ha excedido el límite de consultas diarias.';
+                } else if (status === 'INVALID_REQUEST') {
+                    errorMsg += 'La solicitud es inválida.';
+                } else {
+                    errorMsg += status;
+                }
+                
+                addressDisplay.textContent = errorMsg;
+                addressDisplay.classList.remove('hidden');
+                console.error(errorMsg);
+            }
+        });
+    }
+    
+    // Manejar el botón de confirmación
+    document.addEventListener('DOMContentLoaded', function() {
+        const confirmButton = document.getElementById('confirm-location');
+        const mapContainer = document.getElementById('map-container');
+        
+        // El mensaje de instrucción ha sido eliminado
+        
+        confirmButton.addEventListener('click', function() {
+            if (!mapVisible) {
+                // Mostrar el mapa
+                mapContainer.classList.remove('hidden');
+                mapVisible = true;
+                this.textContent = 'Ocultar mapa';
+                
+                // Verificar si la API se cargó correctamente
+                if (apiError) {
+                    // No intentar usar la API si hay un error
+                    return;
+                }
+                
+                // Asegurarse de que el mapa se renderice correctamente
+                setTimeout(function() {
+                    if (map && google && google.maps && google.maps.event) {
+                        try {
+                            google.maps.event.trigger(map, 'resize');
+                            
+                            // Centrar el mapa en la posición del marcador
+                            const lat = parseFloat(document.getElementById('latitude').value);
+                            const lng = parseFloat(document.getElementById('longitude').value);
+                            if (lat && lng) {
+                                map.setCenter({lat: lat, lng: lng});
+                            }
+                            
+                            // Si ya hay coordenadas, actualizar la dirección
+                            if (lat && lng && lat !== -12.046374 && lng !== -77.042793) {
+                                updateAddressFromCoordinates(lat, lng);
+                            }
+                        } catch (error) {
+                            console.error('Error al manipular el mapa:', error);
+                            handleApiError();
+                        }
+                    } else if (!apiError) {
+                        // Si la API no está disponible pero no se ha detectado un error
+                        handleApiError();
+                    }
+                }, 100);
+            } else {
+                // Ocultar el mapa
+                mapContainer.classList.add('hidden');
+                mapVisible = false;
+                this.textContent = 'Confirmar ubicación';
+            }
+        });
+    });
+</script>
+
+<!-- Cargar la API de Google Maps -->
+<script>
+    // Función para manejar errores de carga de la API
+    function gm_authFailure() {
+        handleApiError();
+        console.error('Error de autenticación de Google Maps API: La clave API no es válida o no tiene los permisos necesarios.');
+    }
+    
+    // Verificar si la API se carga correctamente
+    window.setTimeout(function() {
+        if (!apiLoaded && !apiError) {
+            handleApiError();
+            console.error('Error: No se pudo cargar la API de Google Maps. Verifique su conexión a internet y la clave API.');
+        }
+    }, 5000); // Esperar 5 segundos para que se cargue la API
+</script>
+
+<!-- Cargar scripts adicionales -->
+<script src="{% static 'users/js/location_selectors_fixed.js' %}"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap&libraries=places" onerror="handleApiError()"></script>
+{% endblock %}

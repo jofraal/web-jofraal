@@ -1,0 +1,197 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Mis Direcciones - {{ user.first_name|default:user.username }}{% endblock %}
+
+{% block content %}
+<main class="px-0 py-8 mx-0 w-full min-h-screen bg-white">
+    <div class="container px-4 mx-auto bg-white">
+        <!-- Mensaje de bienvenida para móvil -->
+        <div class="block p-4 mb-6 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-md md:hidden">
+            <h2 class="text-xl font-bold text-white">¡Hola, {{ user.first_name|default:user.username }}!</h2>
+            <p class="mt-1 text-sm text-white opacity-90">Bienvenido a tu perfil personal</p>
+        </div>
+
+        <div class="flex flex-col gap-6 md:flex-row">
+            <!-- Menú lateral -->
+            <aside class="w-full md:w-1/4 lg:w-1/5">
+                <!-- Mensaje de bienvenida para desktop -->
+                <div class="hidden p-6 mb-6 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-md md:block">
+                    <h2 class="text-xl font-bold text-white">¡Hola, {{ user.first_name|default:user.username }}!</h2>
+                    <p class="mt-2 text-sm text-white opacity-90">Bienvenido a tu perfil personal</p>
+                </div>
+
+                <!-- Menú de navegación -->
+                <div class="overflow-hidden bg-white rounded-lg border border-gray-200 shadow-sm">
+                    <div class="divide-y divide-gray-200">
+                        <!-- Datos personales -->
+                        <a href="{% url 'users:profile' %}" class="flex items-center p-4 space-x-3 text-gray-700 menu-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500 menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            <span>Datos personales</span>
+                        </a>
+
+                        <!-- Direcciones -->
+                        <a href="{% url 'users:addresses' %}" class="flex items-center p-4 space-x-3 text-gray-700 menu-item active">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500 menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span>Direcciones</span>
+                        </a>
+
+                        <!-- Medios de pago -->
+                        <a href="{% url 'users:payment_methods' %}" class="flex items-center p-4 space-x-3 text-gray-700 menu-item{% if section == 'payment_methods' %} active{% endif %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500 menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                            </svg>
+                            <span>Medios de pago</span>
+                        </a>
+
+                        <!-- Datos para reembolso -->
+                        <a href="{% url 'users:refund_info' %}" class="flex items-center p-4 space-x-3 text-gray-700 menu-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500 menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                            </svg>
+                            <span>Datos para reembolso</span>
+                        </a>
+
+                        <!-- Historial de pedidos -->
+                        <a href="{% url 'users:order_history' %}" class="flex items-center p-4 space-x-3 text-gray-700 menu-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500 menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            <span>Mis pedidos</span>
+                        </a>
+
+                        <!-- Mis listas -->
+                        <a href="{% url 'users:wishlists' %}" class="flex items-center p-4 space-x-3 text-gray-700 menu-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500 menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                            <span>Mis listas</span>
+                        </a>
+
+                        <!-- Configurar mi cuenta -->
+                        <a href="{% url 'users:account_settings' %}" class="flex items-center p-4 space-x-3 text-gray-700 menu-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500 menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span>Configurar mi cuenta</span>
+                        </a>
+
+                        <!-- Cerrar sesión -->
+                        <a href="{% url 'users:logout' %}" class="flex items-center p-4 space-x-3 text-red-600 menu-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-500 menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            <span>Cerrar sesión</span>
+                        </a>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Contenido principal -->
+            <div class="w-full md:w-3/4 lg:w-4/5">
+                <div class="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-gray-900 playfair">Mis Direcciones</h2>
+                        {% if can_add_more %}
+                        <a href="{% url 'users:add_address' %}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md border border-transparent shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <svg class="mr-2 -ml-1 w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            Agregar dirección
+                        </a>
+                        {% endif %}
+                    </div>
+                    
+                    <p class="mb-4 text-sm text-gray-600">Puedes guardar hasta 3 direcciones para facilitar tus compras.</p>
+                    
+                    <!-- Lista de direcciones -->
+                    {% if has_addresses %}
+                        <div class="space-y-4">
+                            {% for address in addresses %}
+                                <div class="p-4 {% if address.is_default %}bg-indigo-50 border-indigo-200{% else %}bg-gray-50 border-gray-200{% endif %} rounded-lg border">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="flex items-center mb-2">
+                                                <span class="font-medium text-gray-800">{{ address.get_address_type_display }}</span>
+                                                {% if address.is_default %}
+                                                    <span class="px-2 py-1 ml-2 text-xs font-medium text-indigo-800 bg-indigo-100 rounded-full">Predeterminada</span>
+                                                {% endif %}
+                                            </div>
+                                            <p class="text-gray-700">{{ address.address }}</p>
+                                            <p class="mt-1 text-gray-700">
+                                                {{ address.city }}{% if address.state %}, {{ address.state }}{% endif %}
+                                                {% if address.postal_code %} {{ address.postal_code }}{% endif %}
+                                            </p>
+                                            <p class="text-gray-700">{{ address.country }}</p>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <a href="{% url 'users:edit_address' address.id %}" class="inline-flex items-center p-2 text-sm text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50">
+                                                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                            </a>
+                                            <a href="{% url 'users:delete_address' address.id %}" class="inline-flex items-center p-2 text-sm text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50">
+                                                <svg class="w-4 h-4 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    {% if not address.is_default %}
+                                        <div class="pt-3 mt-3 border-t border-gray-200">
+                                            <form method="post" action="{% url 'users:set_default_address' address.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+                                                    Establecer como predeterminada
+                                                </button>
+                                            </form>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <p class="text-yellow-700">No tienes direcciones guardadas.</p>
+                            <div class="mt-4">
+                                <a href="{% url 'users:add_address' %}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md border border-transparent shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    <svg class="mr-2 -ml-1 w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                    Agregar dirección
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Script para manejar la navegación del menú
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuItems = document.querySelectorAll('.menu-item');
+        
+        menuItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                // Si no es el enlace de cerrar sesión
+                if (!this.href.includes('logout')) {
+                    // Remover la clase active de todos los elementos
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    
+                    // Agregar la clase active al elemento clickeado
+                    this.classList.add('active');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

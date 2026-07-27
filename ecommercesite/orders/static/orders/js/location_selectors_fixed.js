@@ -76,9 +76,19 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Función para marcar un campo como válido
     function markAsValid(select) {
-        if (select.value) {
+        // Verificar si el parámetro es un elemento o un valor
+        if (typeof select === 'string') {
+            // Si es un valor (string), buscar el selector correspondiente
+            if (departmentSelect.value === select) {
+                departmentSelect.classList.add('border-green-300');
+            }
+            return;
+        }
+        
+        // Si es un elemento select
+        if (select && select.value) {
             select.classList.add('border-green-300');
-        } else {
+        } else if (select) {
             select.classList.remove('border-green-300');
         }
     }
@@ -375,19 +385,42 @@ document.addEventListener('DOMContentLoaded', function() {
         districtSelect.disabled = false;
         districtSelect.classList.remove('animate-pulse');
 
-        // Ordenar distritos alfabéticamente para mejor usabilidad
-        districts.sort((a, b) => a.localeCompare(b));
+        // Verificar si districts es un array válido
+        if (!Array.isArray(districts)) {
+            console.error('Error: Los distritos recibidos no son un array válido', districts);
+            showError(districtSelect, 'Formato de datos incorrecto');
+            return;
+        }
 
-        districts.forEach(district => {
-            const option = document.createElement('option');
-            option.value = district;
-            option.textContent = district;
-            districtSelect.appendChild(option);
-        });
-        
-        // Si hay un valor seleccionado, marcarlo como válido
-        if (districtSelect.value) {
-            markAsValid(districtSelect);
+        try {
+            // Procesar los distritos que pueden venir en formato [{name: 'distrito'}, ...] o como array simple
+            const processedDistricts = districts.map(district => {
+                if (district === null || district === undefined) {
+                    return '';
+                }
+                if (typeof district === 'object' && 'name' in district) {
+                    return district.name;
+                }
+                return district;
+            }).filter(district => district !== ''); // Eliminar valores vacíos
+
+            // Ordenar distritos alfabéticamente para mejor usabilidad
+            processedDistricts.sort((a, b) => a.localeCompare(b));
+
+            processedDistricts.forEach(district => {
+                const option = document.createElement('option');
+                option.value = district;
+                option.textContent = district;
+                districtSelect.appendChild(option);
+            });
+            
+            // Si hay un valor seleccionado, marcarlo como válido
+            if (districtSelect.value) {
+                markAsValid(districtSelect);
+            }
+        } catch (error) {
+            console.error('Error al procesar distritos:', error, districts);
+            showError(districtSelect, 'Error al procesar datos');
         }
         
         // Actualizar estado de validación

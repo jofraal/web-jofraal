@@ -4,14 +4,16 @@
 {% block title %}Registrarse - Jonathan Fraal{% endblock %}
 
 {% block content %}
+<main class="px-0 py-8 mx-0 w-full min-h-screen bg-white">
+<div class="container px-4 mx-auto bg-white">
 <div class="flex flex-col min-h-screen md:flex-row">
   <!-- Left side - Image -->
   <div class="bg-blue-400 md:w-1/2">
-    <img src="{% static 'images/friends.jpg' %}" alt="Amigos sonriendo" class="object-cover w-full h-full">
+    <img src="https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=group%20of%20diverse%20young%20friends%20smiling%20together%20outdoors%2C%20candid%20photography%2C%20natural%20lighting%2C%20warm%20tones%2C%20lifestyle%20photography&image_size=portrait_4_3" alt="Amigos sonriendo" class="object-cover w-full h-full" loading="lazy">
   </div>
   
   <!-- Right side - Form -->
-  <div class="flex items-center justify-center p-8 bg-gray-50 md:w-1/2">
+  <div class="flex justify-center items-center p-8 bg-gray-50 md:w-1/2">
     <div class="w-full max-w-md">
       <h1 class="mb-8 text-3xl font-bold text-gray-900 playfair">Crear una cuenta</h1>
       
@@ -97,6 +99,56 @@
           {% endif %}
         </div>
         
+        <!-- Tipo de documento -->
+        <div class="mb-4">
+          <select
+            name="document_type"
+            required
+            class="p-3 w-full rounded-lg border {% if form.document_type.errors %}border-red-500{% else %}border-gray-300{% endif %} focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-300"
+          >
+            <option value="" disabled {% if not form.document_type.value %}selected{% endif %}>Tipo de documento</option>
+            <option value="DNI" {% if form.document_type.value == 'DNI' %}selected{% endif %}>DNI</option>
+            <option value="CE" {% if form.document_type.value == 'CE' %}selected{% endif %}>Carnet de Extranjería</option>
+            <option value="Pasaporte" {% if form.document_type.value == 'Pasaporte' %}selected{% endif %}>Pasaporte</option>
+          </select>
+          {% if form.document_type.errors %}
+            <p class="mt-1 text-xs text-red-500">{{ form.document_type.errors.0 }}</p>
+          {% endif %}
+        </div>
+        
+        <!-- Número de documento -->
+        <div class="mb-4">
+          <input
+            type="text"
+            name="document_number"
+            placeholder="Número de documento de identidad"
+            required
+            value="{{ form.document_number.value|default:'' }}"
+            class="p-3 w-full rounded-lg border {% if form.document_number.errors %}border-red-500{% else %}border-gray-300{% endif %} focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-300"
+          >
+          {% if form.document_number.errors %}
+            <p class="mt-1 text-xs text-red-500">{{ form.document_number.errors.0 }}</p>
+          {% endif %}
+        </div>
+        
+        <!-- Celular -->
+        <div class="relative mb-4">
+          <div class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
+            <span class="text-gray-500">+51</span>
+          </div>
+          <input
+            type="text"
+            name="phone_number"
+            placeholder="Celular"
+            required
+            value="{{ form.phone_number.value|default:'' }}"
+            class="p-3 pl-12 w-full rounded-lg border {% if form.phone_number.errors %}border-red-500{% else %}border-gray-300{% endif %} focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-300"
+          >
+          {% if form.phone_number.errors %}
+            <p class="mt-1 text-xs text-red-500">{{ form.phone_number.errors.0 }}</p>
+          {% endif %}
+        </div>
+        
         <div class="relative mb-4">
           <input
             type="password"
@@ -106,12 +158,32 @@
             required
             class="p-3 w-full rounded-lg border {% if form.password1.errors %}border-red-500{% else %}border-gray-300{% endif %} focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-300"
           >
-          <button type="button" id="toggle-password" class="absolute text-gray-500 transform -translate-y-1/2 right-3 top-1/2">
+          <button type="button" id="toggle-password" class="absolute right-3 top-1/2 text-gray-500 transform -translate-y-1/2">
             <i class="w-5 h-5 fas fa-eye-slash"></i>
           </button>
           {% if form.password1.errors %}
             <p class="mt-1 text-xs text-red-500">{{ form.password1.errors.0 }}</p>
           {% endif %}
+          <!-- Requisitos de contraseña -->
+          <div class="mt-2 text-xs text-gray-600">
+            <ul class="grid grid-cols-2 gap-1">
+              <li class="flex items-center" id="req-min-chars">
+                <i class="mr-1 text-xs fas fa-circle"></i> Mín. 8 caracteres
+              </li>
+              <li class="flex items-center" id="req-lowercase">
+                <i class="mr-1 text-xs fas fa-circle"></i> 1 minúscula
+              </li>
+              <li class="flex items-center" id="req-number">
+                <i class="mr-1 text-xs fas fa-circle"></i> 1 número
+              </li>
+              <li class="flex items-center" id="req-uppercase">
+                <i class="mr-1 text-xs fas fa-circle"></i> 1 mayúscula
+              </li>
+              <li class="flex items-center" id="req-no-spaces">
+                <i class="mr-1 text-xs fas fa-circle"></i> Sin espacios
+              </li>
+            </ul>
+          </div>
         </div>
         
         <div class="relative mb-6">
@@ -128,15 +200,53 @@
           {% endif %}
         </div>
         
-        <div class="mb-6 text-sm text-gray-600">
-          Al crear una cuenta, aceptas nuestras 
-          <a href="#" class="text-indigo-600 hover:underline transition-300">Condiciones de uso</a> y admites haber leído nuestro 
-          <a href="#" class="text-indigo-600 hover:underline transition-300">Aviso de privacidad</a>.
+        <!-- Términos y condiciones -->
+        <div class="mb-4">
+          <div class="flex items-start">
+            <div class="flex items-center h-5">
+              <input
+                id="accept_terms"
+                name="accept_terms"
+                type="checkbox"
+                required
+                {% if form.accept_terms.value %}checked{% endif %}
+                class="w-4 h-4 text-indigo-600 bg-gray-100 rounded border-gray-300 focus:ring-indigo-500"
+              >
+            </div>
+            <label for="accept_terms" class="ml-2 text-sm text-gray-600">
+              Acepto los <a href="#" class="text-indigo-600 hover:underline transition-300">términos y condiciones</a> para acumular CMR Puntos en mis compras.
+            </label>
+          </div>
+          {% if form.accept_terms.errors %}
+            <p class="mt-1 text-xs text-red-500">{{ form.accept_terms.errors.0 }}</p>
+          {% endif %}
+        </div>
+        
+        <!-- Política de privacidad -->
+        <div class="mb-6">
+          <div class="flex items-start">
+            <div class="flex items-center h-5">
+              <input
+                id="accept_privacy"
+                name="accept_privacy"
+                type="checkbox"
+                required
+                {% if form.accept_privacy.value %}checked{% endif %}
+                class="w-4 h-4 text-indigo-600 bg-gray-100 rounded border-gray-300 focus:ring-indigo-500"
+              >
+            </div>
+            <label for="accept_privacy" class="ml-2 text-sm text-gray-600">
+              Acepto los <a href="#" class="text-indigo-600 hover:underline transition-300">términos y condiciones</a> de falabella.com y autorizo la <a href="#" class="text-indigo-600 hover:underline transition-300">política de privacidad</a>.
+            </label>
+          </div>
+          {% if form.accept_privacy.errors %}
+            <p class="mt-1 text-xs text-red-500">{{ form.accept_privacy.errors.0 }}</p>
+          {% endif %}
         </div>
         
         <button
           type="submit"
-          class="w-full py-3 font-medium text-gray-800 bg-gray-300 rounded-lg hover:bg-gray-400 transition-300"
+          class="py-3 w-full font-medium text-gray-800 bg-gray-300 rounded-lg hover:bg-gray-400 transition-300"
         >
           Crear una cuenta
         </button>
@@ -150,9 +260,9 @@
         <div class="grid grid-cols-1 gap-4">
           <a
             href="{% url 'social:begin' 'google-oauth2' %}"
-            class="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-300"
+            class="flex justify-center items-center px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-300"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" viewBox="0 0 24 24">
+            <svg xmlns="http://www.w3.org/2000/svg" class="mr-2 w-5 h-5" viewBox="0 0 24 24">
               <path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/>
             </svg>
             Google
@@ -186,6 +296,56 @@
       '<i class="w-5 h-5 fas fa-eye"></i>';
   });
 
-  // Account type selection has been removed
+  // Validación de contraseña en tiempo real
+  const passwordInput = document.getElementById('password1');
+  const reqMinChars = document.getElementById('req-min-chars');
+  const reqLowercase = document.getElementById('req-lowercase');
+  const reqNumber = document.getElementById('req-number');
+  const reqUppercase = document.getElementById('req-uppercase');
+  const reqNoSpaces = document.getElementById('req-no-spaces');
+
+  passwordInput.addEventListener('input', function() {
+    const password = this.value;
+    
+    // Verificar requisitos
+    const hasMinChars = password.length >= 8;
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasNoSpaces = !/\s/.test(password);
+    
+    // Actualizar indicadores visuales
+    updateRequirement(reqMinChars, hasMinChars);
+    updateRequirement(reqLowercase, hasLowercase);
+    updateRequirement(reqNumber, hasNumber);
+    updateRequirement(reqUppercase, hasUppercase);
+    updateRequirement(reqNoSpaces, hasNoSpaces);
+  });
+
+  function updateRequirement(element, isMet) {
+    if (isMet) {
+      element.classList.add('text-green-600');
+      element.classList.remove('text-gray-600');
+      element.querySelector('i').classList.remove('fa-circle');
+      element.querySelector('i').classList.add('fa-check-circle');
+    } else {
+      element.classList.remove('text-green-600');
+      element.classList.add('text-gray-600');
+      element.querySelector('i').classList.add('fa-circle');
+      element.querySelector('i').classList.remove('fa-check-circle');
+    }
+  }
+
+  // Formatear automáticamente el número de teléfono
+  const phoneInput = document.querySelector('input[name="phone_number"]');
+  phoneInput.addEventListener('input', function() {
+    // Eliminar caracteres no numéricos
+    this.value = this.value.replace(/\D/g, '');
+    
+    // Limitar a 9 dígitos (estándar para Perú)
+    if (this.value.length > 9) {
+      this.value = this.value.slice(0, 9);
+    }
+  });
 </script>
 {% endblock %}

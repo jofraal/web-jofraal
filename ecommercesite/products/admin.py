@@ -29,7 +29,7 @@ class ProductVariantInline(admin.TabularInline):
     model = ProductVariant
     form = ProductVariantForm
     extra = 1
-    fields = ('color', 'size', 'stock', 'discount_percentage', 'discount_start_date', 'discount_end_date')
+    fields = ('sku', 'color', 'size', 'stock', 'discount_percentage', 'discount_start_date', 'discount_end_date')
     readonly_fields = ('get_price',)
     show_change_link = True
 
@@ -39,9 +39,9 @@ class ProductVariantInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'price', 'available', 'total_stock', 'created', 'updated', 'image_preview', 'view_on_site_link')
+    list_display = ('name', 'sku', 'category', 'price', 'available', 'total_stock', 'created', 'updated', 'image_preview', 'view_on_site_link')
     list_filter = ('available', 'category', 'brand', 'created', 'updated', 'price')
-    search_fields = ('name', 'description')
+    search_fields = ('name', 'description', 'sku')
     prepopulated_fields = {'slug': ('name',)}
     actions = ['mark_as_available', 'mark_as_unavailable', 'generate_variants']
     inlines = [ProductVariantInline]
@@ -86,9 +86,9 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(ProductVariant)
 class ProductVariantAdmin(admin.ModelAdmin):
-    list_display = ('product', 'color', 'size', 'stock', 'discount_percentage')
+    list_display = ('product', 'sku', 'color', 'size', 'stock', 'discount_percentage')
     list_filter = ('color', 'size', 'discount_percentage', 'stock')
-    search_fields = ('product__name', 'color', 'size')
+    search_fields = ('product__name', 'sku', 'color', 'size')
 
 @admin.register(ProductReview)
 class ProductReviewAdmin(admin.ModelAdmin):

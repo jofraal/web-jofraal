@@ -3,11 +3,11 @@
 {% block title %}Colección Destacada{% endblock %}
 {% block content %}
 <!-- Mostrar productos destacados -->
-<div class="container px-4 py-8 mx-auto min-h-screen bg-white">
+<div class="container px-4 py-6 mx-auto min-h-screen bg-white sm:py-8">
     <h1 class="mb-8 text-2xl font-bold text-left text-red-600 uppercase">Colección Destacada</h1>
 
-    <!-- Lista de productos destacados -->
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+    <!-- Lista de productos destacados - Mejorada para móvil -->
+    <div class="grid grid-cols-1 gap-4 xs:grid-cols-2 sm:gap-5 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
         {% for product in products %}
         <div class="overflow-hidden relative bg-white border border-gray-200 transition-transform duration-300 group">
             <a href="{{ product.get_absolute_url }}" class="block">
@@ -38,7 +38,7 @@
                 <!-- Detalles del producto -->
                 <div class="p-4 text-center">
                     <h3 class="text-base font-medium text-gray-900 uppercase">{{ product.name }}</h3>
-                    <p class="text-xs text-gray-600 uppercase">{{ product.brand|default:"JOHN HOLDEN" }}</p>
+                    <p class="text-xs text-gray-600 uppercase">{{ product.brand|default:"" }}</p>
                     <div class="flex justify-center items-center mt-2">
                         {% if product.discount_percentage > 0 %}
                         <span class="mr-2 text-sm text-gray-500 line-through">S/ {{ product.original_price|floatformat:2 }}</span>
@@ -99,7 +99,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRFToken': getCookie('csrftoken')
+                            'X-CSRFToken': csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest'
                         },
                         body: JSON.stringify({ quantity: 1, update: false })
                     });

@@ -1,21 +1,32 @@
 {% load static %}
-
-<section class="py-8 bg-gray-100 w-screen -mx-[calc(50vw-50%)] relative">
-    <h2 class="mb-6 text-2xl font-bold text-center text-gray-800 md:text-3xl">Productos Destacados</h2>
-    <div class="relative overflow-hidden bg-gradient-to-r from-blue-100 to-blue-200 w-screen h-[20rem] sm:h-[24rem] md:h-[28rem] lg:h-96">
-        <!-- Slider Container -->
-        <div class="flex h-full transition-transform duration-500 ease-in-out slider-track">
+<section class="relative py-10 w-full bg-gradient-to-b from-gray-50 to-gray-100">
+    <div class="container px-4 mx-auto max-w-full">
+        <h2 class="inline-block relative mx-auto mb-8 w-auto text-2xl font-bold text-center text-gray-800 md:text-3xl">
+            <span class="relative z-10">Productos Destacados</span>
+            <span class="absolute bottom-0 left-0 w-full h-2 bg-lime-300 opacity-50 -z-10"></span>
+        </h2>
+        <div class="relative overflow-hidden bg-gradient-to-r from-blue-50 via-blue-100 to-blue-200 w-full h-[20rem] sm:h-[24rem] md:h-[28rem] lg:h-96 shadow-lg">
+            <!-- Indicador de deslizamiento -->
+            <div class="absolute top-4 right-4 z-10 px-3 py-1 text-xs font-medium text-gray-700 rounded-full backdrop-blur-sm bg-white/80">
+                <span class="current-slide">1</span>/<span class="total-slides">3</span>
+            </div>
+            <!-- Slider Container -->
+            <div class="flex h-full transition-transform duration-500 ease-in-out slider-track">
             {% for category, products in category_products.items %}
-                <div class="flex flex-col flex-shrink-0 justify-between items-center px-4 w-full h-full md:flex-row sm:px-8">
+                <div class="flex flex-col flex-shrink-0 justify-between items-center px-6 w-full h-full md:flex-row sm:px-10 lg:px-16">
                     <!-- Text Container -->
-                    <div class="ml-8 space-y-6 w-full text-center md:w-1/3 md:text-left sm:ml-10 md:ml-12">
+                    <div class="space-y-6 w-full text-center md:w-1/3 md:text-left md:pl-8 lg:pl-12">
                         <h1 class="text-2xl font-medium leading-tight text-gray-800 capitalize sm:text-3xl md:text-4xl">
                             {{ category }}
                         </h1>
-                        <a href="{% url 'products:product_list_by_category' category %}" 
-                           class="inline-block px-4 py-2 text-sm font-bold text-gray-800 bg-lime-400 rounded-full sm:text-base sm:px-6 hover:bg-lime-500">
-                            VER MÁS
-                        </a>
+                        {% for cat in categories %}
+                            {% if cat.name == category %}
+                                <a href="{% url 'products:product_list_by_category' category_slug=cat.slug %}" 
+                                   class="inline-block px-4 py-2 text-sm font-bold text-gray-800 bg-lime-400 rounded-full transition-all duration-300 transform sm:text-base sm:px-6 hover:bg-lime-500 hover:shadow-md hover:-translate-y-1">
+                                    VER MÁS
+                                </a>
+                            {% endif %}
+                        {% endfor %}
                         <!-- Brand Container (Fijo) -->
                         <div class="mx-auto w-full">
                             <div class="flex flex-wrap gap-4 justify-center items-center">
@@ -29,33 +40,42 @@
                     </div>
                     <!-- Products Container (Fijo por categoría) -->
                     <div class="mt-6 w-full md:w-2/3 md:mt-0">
-                        <div class="flex flex-wrap gap-4 justify-center">
+                        <div class="flex flex-wrap gap-4 justify-center px-2 w-full md:justify-between md:px-4">
                             {% for product in products %}
-                                <a href="{% url 'products:product_list_by_category' category %}" 
-                                   class="relative flex-shrink-0 w-36 transition-all duration-300 ease-in-out transform sm:w-44 md:w-60 hover:-translate-y-2">
+                                {% for cat in categories %}
+                                    {% if cat.name == category %}
+                                        <a href="{% url 'products:product_list_by_category' category_slug=cat.slug %}" 
+                                           class="relative flex-shrink-0 w-36 transition-all duration-300 ease-in-out transform sm:w-44 md:w-60 hover:-translate-y-2">
+                                    {% endif %}
+                                {% endfor %}
                                     <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/placeholder.png' %}{% endif %}" 
                                          alt="{{ product.name }}" 
-                                         class="object-cover w-full h-32 drop-shadow-lg sm:h-40 md:h-48">
-                                    <div class="absolute -bottom-4 left-1/2 w-16 h-4 bg-blue-300 rounded -translate-x-1/2 sm:w-20 sm:h-6 md:w-24 md:h-8"></div>
-                                </a>
+                                         class="object-cover w-full h-32 rounded-lg drop-shadow-lg transition-all duration-500 sm:h-40 md:h-48 hover:brightness-105">
+                                    <div class="absolute -bottom-4 left-1/2 w-16 h-4 bg-gradient-to-r from-blue-400 to-blue-300 rounded-lg shadow-md -translate-x-1/2 sm:w-20 sm:h-6 md:w-24 md:h-8"></div>
+                                {% for cat in categories %}
+                                    {% if cat.name == category %}
+                                        </a>
+                                    {% endif %}
+                                {% endfor %}
                             {% endfor %}
                         </div>
                     </div>
                 </div>
             {% endfor %}
-        </div>
-        <!-- Navigation Arrows -->
-        <button class="flex absolute left-2 top-1/2 justify-center items-center w-8 h-8 rounded-full shadow-md transition-all -translate-y-1/2 prev-slide bg-white/80 hover:bg-white">
-            <span class="text-lg text-gray-800">←</span>
-        </button>
-        <button class="flex absolute right-2 top-1/2 justify-center items-center w-8 h-8 rounded-full shadow-md transition-all -translate-y-1/2 next-slide bg-white/80 hover:bg-white">
-            <span class="text-lg text-gray-800">→</span>
-        </button>
-        <!-- Slider Dots -->
-        <div class="flex absolute bottom-5 left-1/2 gap-2 -translate-x-1/2 slide-dots">
-            {% for category in category_products.keys %}
-                <span class="h-2 w-2 sm:h-2.5 sm:w-2.5 cursor-pointer transition-colors hover:bg-gray-600 {% if forloop.first %}bg-gray-800{% else %}bg-gray-500/30{% endif %} rounded-full"></span>
-            {% endfor %}
+            </div>
+            <!-- Navigation Arrows - Mejorados -->
+            <button class="flex absolute left-4 top-1/2 justify-center items-center w-10 h-10 rounded-full shadow-lg transition-all -translate-y-1/2 prev-slide bg-white/90 hover:bg-white hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                <span class="text-xl text-gray-800">←</span>
+            </button>
+            <button class="flex absolute right-4 top-1/2 justify-center items-center w-10 h-10 rounded-full shadow-lg transition-all -translate-y-1/2 next-slide bg-white/90 hover:bg-white hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                <span class="text-xl text-gray-800">→</span>
+            </button>
+            <!-- Slider Dots - Mejorados -->
+            <div class="flex absolute bottom-6 left-1/2 gap-3 -translate-x-1/2 slide-dots">
+                {% for category in category_products.keys %}
+                    <span class="h-3 w-3 sm:h-3.5 sm:w-3.5 cursor-pointer transition-all duration-300 hover:bg-lime-500 hover:scale-110 {% if forloop.first %}bg-lime-500 scale-110{% else %}bg-gray-400/50{% endif %} rounded-full shadow-sm"></span>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </section>
@@ -67,15 +87,28 @@
         const prevBtn = document.querySelector('.prev-slide');
         const nextBtn = document.querySelector('.next-slide');
         const dots = document.querySelectorAll('.slide-dots span');
+        const currentSlideEl = document.querySelector('.current-slide');
+        const totalSlidesEl = document.querySelector('.total-slides');
         let slideIndex = 0;
         const totalSlides = slides.length;
+        
+        // Actualizar contador total de slides
+        if (totalSlidesEl) totalSlidesEl.textContent = totalSlides;
 
         function updateSlider() {
+            // Animación suave para el deslizamiento
             sliderTrack.style.transform = `translateX(-${slideIndex * 100}%)`;
+            
+            // Actualizar indicadores visuales
             dots.forEach((dot, idx) => {
-                dot.classList.toggle('bg-gray-800', idx === slideIndex);
-                dot.classList.toggle('bg-gray-500/30', idx !== slideIndex);
+                dot.classList.toggle('bg-lime-500', idx === slideIndex);
+                dot.classList.toggle('scale-110', idx === slideIndex);
+                dot.classList.toggle('bg-gray-400/50', idx !== slideIndex);
+                dot.classList.toggle('scale-100', idx !== slideIndex);
             });
+            
+            // Actualizar contador de slides
+            if (currentSlideEl) currentSlideEl.textContent = slideIndex + 1;
         }
 
         nextBtn.addEventListener('click', () => {
@@ -111,7 +144,27 @@
             });
         });
 
-        setInterval(() => nextBtn.click(), 5000); // Cambia cada 5 segundos automáticamente
+        // Autoplay con pausa al hover
+        let autoplayInterval;
+        
+        function startAutoplay() {
+            autoplayInterval = setInterval(() => nextBtn.click(), 6000); // Cambia cada 6 segundos
+        }
+        
+        function stopAutoplay() {
+            clearInterval(autoplayInterval);
+        }
+        
+        // Pausar autoplay cuando el usuario interactúa con el slider
+        sliderTrack.addEventListener('mouseenter', stopAutoplay);
+        sliderTrack.addEventListener('mouseleave', startAutoplay);
+        prevBtn.addEventListener('mouseenter', stopAutoplay);
+        nextBtn.addEventListener('mouseenter', stopAutoplay);
+        prevBtn.addEventListener('mouseleave', startAutoplay);
+        nextBtn.addEventListener('mouseleave', startAutoplay);
+        
+        // Iniciar autoplay
+        startAutoplay();
         updateSlider(); // Inicializar
     });
 </script>

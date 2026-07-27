@@ -15,8 +15,5 @@ urlpatterns = [
     path('toggle-select-all/', views.toggle_select_all, name='toggle_select_all'),
     path('get-suggestions/', views.get_suggestions, name='get_suggestions'),
     path('get-summary/', views.get_summary, name='get_summary'),
-    path('create-payment/', views.create_payment, name='create_payment'),
-    path('success/', views.payment_success, name='payment_success'),
-    path('failure/', views.payment_failure, name='payment_failure'),
-    path('pending/', views.payment_pending, name='payment_pending'),
+    path('get-count/', views.get_cart_count, name='get_cart_count'),
 ]

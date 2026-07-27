@@ -12,12 +12,18 @@ def mercadopago_settings(request):
         'payment_enabled': bool(settings.MERCADO_PAGO_PUBLIC_KEY and settings.MERCADO_PAGO_ACCESS_TOKEN),
     }
     
-    # Solo incluir la clave pública si estamos en una página de pago
+    # Incluir la clave pública solo en páginas relacionadas con pagos
     # Esto reduce la exposición de la clave en todas las páginas
-    if hasattr(request, 'path') and ('/cart/' in request.path or '/checkout/' in request.path):
+    payment_pages = ['/cart/', '/checkout/', '/orders/']
+    is_payment_page = hasattr(request, 'path') and any(page in request.path for page in payment_pages)
+    
+    if is_payment_page:
         config['public_key'] = settings.MERCADO_PAGO_PUBLIC_KEY
+        return {
+            'mercadopago_config': json.dumps(config),
+            'MERCADO_PAGO_PUBLIC_KEY': settings.MERCADO_PAGO_PUBLIC_KEY,
+        }
     
     return {
         'mercadopago_config': json.dumps(config),
-        'MERCADO_PAGO_PUBLIC_KEY': settings.MERCADO_PAGO_PUBLIC_KEY,  # Mantener para compatibilidad
     }

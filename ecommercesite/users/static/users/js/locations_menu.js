@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let locationsData = {};
     
     // Cargar departamentos usando el mismo endpoint API que location_selectors.js
-    fetch("/orders/api/departments/")
+    fetch("/users/api/get-departments/")
         .then(response => {
             if (!response.ok) {
                 throw new Error('No se pudo cargar los departamentos');
@@ -22,7 +22,8 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(departments => {
             // Iterar sobre cada departamento
-            departments.forEach(department => {
+            departments.forEach(departmentObj => {
+                const department = departmentObj.name; // Extraer el nombre
                 const li = document.createElement('li');
                 li.className = 'relative';
                 li.setAttribute('x-data', '{ open: false }');
@@ -49,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     
                     // Cargar provincias usando el endpoint API
-                    fetch(`/orders/api/provinces/?department=${encodeURIComponent(department)}`)
+                    fetch(`/users/api/get-provinces/?department=${encodeURIComponent(department)}`)
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error(`No se pudo cargar las provincias de ${department}`);
@@ -57,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             return response.json();
                         })
                         .then(provinces => {
-                            // Guardar en caché
+                            // Guardar en caché (como array de objetos)
                             locationsData[department] = provinces;
                             renderProvinces(department, provinces, provincesSubmenu);
                         })
@@ -66,6 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             provincesSubmenu.innerHTML = '<li class="px-4 py-2 text-sm text-red-500">Error al cargar provincias</li>';
                         });
                 }, { once: true }); // Solo ejecutar una vez
+                li.appendChild(provincesSubmenu);
                 menuContainer.appendChild(li);
             });
             
@@ -75,7 +77,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 provincesSubmenu.innerHTML = '';
                 
                 // Iterar sobre cada provincia
-                provinces.forEach(province => {
+                provinces.forEach(provinceObj => {
+                    const province = provinceObj.name; // Extraer el nombre
                     const provinceLi = document.createElement('li');
                     provinceLi.className = 'relative';
                     provinceLi.setAttribute('x-data', '{ open: false }');
@@ -96,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Cargar distritos solo cuando se pasa el mouse sobre la provincia (lazy loading)
                     provinceLi.addEventListener('mouseenter', function() {
                         // Cargar distritos usando el endpoint API
-                        fetch(`/orders/api/districts/?department=${encodeURIComponent(department)}&province=${encodeURIComponent(province)}`)
+                        fetch(`/users/api/get-districts/?department=${encodeURIComponent(department)}&province=${encodeURIComponent(province)}`)
                             .then(response => {
                                 if (!response.ok) {
                                     throw new Error(`No se pudo cargar los distritos de ${province}`);
@@ -108,7 +111,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                 districtsSubmenu.innerHTML = '';
                                 
                                 // Renderizar distritos
-                                districts.forEach(district => {
+                                districts.forEach(districtObj => {
+                                    const district = districtObj.name; // Extraer el nombre
                                     const districtLi = document.createElement('li');
                                     const districtA = document.createElement('a');
                                     districtA.className = 'block px-4 py-2 text-sm text-gray-800 hover:bg-gray-100';

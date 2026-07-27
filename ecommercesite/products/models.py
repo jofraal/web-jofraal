@@ -1,8 +1,11 @@
 from django.db import models
 from django.urls import reverse
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from django.utils import timezone
 from django.contrib.auth.models import User  # Add this import
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
@@ -38,6 +41,7 @@ class Product(models.Model):
     brand = models.ForeignKey(Brand, related_name='products', on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField(max_length=250)
     slug = models.SlugField(max_length=250, unique=True)
+    sku = models.CharField(max_length=50, unique=True, blank=True, null=True, db_index=True)
     description = models.TextField(blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     available = models.BooleanField(default=True)
@@ -71,7 +75,11 @@ class Product(models.Model):
         """Calcula el precio con descuento si aplica."""
         discount_percentage = self.calculate_discount_percentage()
         if discount_percentage > 0:
-            discount_factor = Decimal(str(1 - (discount_percentage / 100)))
+            try:
+                discount_factor = Decimal(str(float(1 - (discount_percentage / 100))))
+            except (ValueError, TypeError) as e:
+                logger.warning(f"Error al convertir discount_factor a Decimal: {e}")
+                discount_factor = Decimal('1.0')
             discounted = self.price * discount_factor
             return discounted.quantize(Decimal('0.01'))
         return self.price
@@ -136,6 +144,7 @@ class ProductVariant(models.Model):
     product = models.ForeignKey(Product, related_name='variants', on_delete=models.CASCADE)
     color = models.CharField(max_length=50, default='gray')
     size = models.CharField(max_length=10, blank=True, null=True)
+    sku = models.CharField(max_length=50, unique=True, blank=True, null=True, db_index=True)
     stock = models.PositiveIntegerField(default=0)
     discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=0, help_text='Porcentaje de descuento (0-100)')
     discount_start_date = models.DateTimeField(blank=True, null=True, help_text='Fecha de inicio de la promoción')
@@ -147,10 +156,20 @@ class ProductVariant(models.Model):
         return self.discount_percentage > 0 and (not self.discount_start_date or self.discount_start_date <= now) and (not self.discount_end_date or self.discount_end_date >= now)
 
     def get_price(self):
-        if self.has_discount():
-            discount_factor = Decimal(1 - (self.discount_percentage / 100))
-            return (self.product.price * discount_factor).quantize(Decimal('0.01'))
-        return self.product.price
+        try:
+            if self.has_discount():
+                try:
+                    discount_percentage = Decimal(str(self.discount_percentage))
+                    discount_factor = Decimal('1') - (discount_percentage / Decimal('100'))
+                    product_price = Decimal(str(self.product.price))
+                    return (product_price * discount_factor).quantize(Decimal('0.01'))
+                except (ValueError, TypeError, InvalidOperation) as e:
+                    logger.warning(f"Error al calcular precio con descuento: {e}")
+                    return Decimal(str(self.product.price)).quantize(Decimal('0.01'))
+            return Decimal(str(self.product.price)).quantize(Decimal('0.01'))
+        except Exception as e:
+            logger.critical(f"Error crítico en ProductVariant.get_price (variant_id={self.id}): {e}")
+            raise
 
     def clean(self):
         if self.discount_percentage < 0 or self.discount_percentage > 100:

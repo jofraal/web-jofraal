@@ -4,8 +4,18 @@ from decouple import config
 
 DEBUG = False
 
-# Configurar hosts permitidos - reemplazar con tu dominio de PythonAnywhere
-ALLOWED_HOSTS = ['tuusuario.pythonanywhere.com']
+# Configurar hosts permitidos
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=lambda v: [s.strip() for s in v.split(',')], default='localhost,127.0.0.1')
+
+# Dominio de producción para CSRF trusted origins
+_DOMAIN = config('DOMAIN', default='')
+CSRF_TRUSTED_ORIGINS = [
+    f'https://{_DOMAIN}',
+    f'https://www.{_DOMAIN}',
+] if _DOMAIN else [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
 
 # Configuración de base de datos MySQL para PythonAnywhere
 DATABASES = {
@@ -37,7 +47,37 @@ SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = 'DENY'
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+X_FRAME_OPTIONS = 'SAMEORIGIN'  # Permite iframes de MercadoPago
+
+# Caché en producción
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'django_cache',
+    }
+}
+
+# Deshabilitar debug en templates en producción
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'core/templates'],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.csrf',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
+                'cart.context_processors.mercadopago_settings',
+                'core.context_processors.google_maps_settings',
+            ],
+        },
+    },
+]
 
 # Configuración de correo electrónico
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

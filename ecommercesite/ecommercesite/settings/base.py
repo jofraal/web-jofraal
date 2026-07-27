@@ -39,6 +39,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',  # Middleware para manejar errores de autenticación social
+    'users.middleware.AdminLoginRateLimitMiddleware',  # Rate limiting en login del admin
     'users.middleware.AdminAccessMiddleware',  # Middleware para restringir acceso al admin
 ]
 
@@ -55,9 +56,11 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.csrf',  # Necesario para {{ csrf_token }} en JS
                 'social_django.context_processors.backends',  # Agregado para autenticación social
                 'social_django.context_processors.login_redirect',  # Agregado para redirecciones
                 'cart.context_processors.mercadopago_settings',  # Agregado para configuraciones de Mercado Pago
+                'core.context_processors.google_maps_settings',  # Agregado para configuraciones de Google Maps
             ],
         },
     },
@@ -74,7 +77,21 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 AUTH_PASSWORD_VALIDATORS = [
-    # ...existing code...
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,
+        }
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
 ]
 
 LANGUAGE_CODE = 'en-us'
@@ -121,41 +138,35 @@ LOGGING = {
     },
     'root': {
         'handlers': ['console'],
-        'level': 'DEBUG',
+        'level': 'WARNING',
     },
 }
 
 # Seguridad de cookies
-SESSION_COOKIE_SECURE = True  # Solo enviar cookies de sesión a través de HTTPS
 SESSION_COOKIE_HTTPONLY = True  # Evitar acceso a cookies desde JavaScript
-CSRF_COOKIE_SECURE = True  # Solo enviar cookies CSRF a través de HTTPS
 CSRF_COOKIE_HTTPONLY = True  # Evitar acceso a cookies CSRF desde JavaScript
 
 # Configuración de expiración de sesiones
 SESSION_COOKIE_AGE = 3600  # Expiración de sesión después de 1 hora (en segundos)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # La sesión expira al cerrar el navegador
-SESSION_SAVE_EVERY_REQUEST = True  # Actualizar la cookie de sesión en cada solicitud
+SESSION_SAVE_EVERY_REQUEST = False  # Solo guardar sesión cuando cambie (reduce I/O en BD)
 
 # Rotación de tokens CSRF
 CSRF_COOKIE_AGE = 10800  # Expiración del token CSRF después de 3 horas (en segundos)
 CSRF_USE_SESSIONS = True  # Almacenar tokens CSRF en la sesión para mayor seguridad
-CSRF_TRUSTED_ORIGINS = []  # Orígenes confiables para solicitudes CSRF
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
 
-# Encabezados de seguridad
+# Límites de upload de archivos (10MB para imágenes de productos)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+
+# Seguridad de cookies
 SECURE_BROWSER_XSS_FILTER = True  # Habilitar filtro XSS en navegadores
 SECURE_CONTENT_TYPE_NOSNIFF = True  # Evitar que el navegador interprete tipos MIME incorrectos
-X_FRAME_OPTIONS = 'DENY'  # Prevenir ataques de clickjacking
-
-# Política de seguridad de contenido (CSP)
-CSP_DEFAULT_SRC = ("'self'",)
-CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'")
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
-CSP_IMG_SRC = ("'self'", "data:")
-
-# Configuración adicional para HSTS
-SECURE_HSTS_SECONDS = 31536000  # Habilitar HSTS por un año
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
+X_FRAME_OPTIONS = 'SAMEORIGIN'  # Permitir iframes del mismo origen (compatible con MercadoPago)
 
 # Claves de APIs para autenticación social
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY', default='')
@@ -163,6 +174,9 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET', de
 
 # URL de redirección autorizada para Google OAuth2
 SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = config('SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI')
+
+# Claves de APIs para autenticacion de Google Maps
+GOOGLE_MAPS_API_KEY = config('GOOGLE_MAPS_API_KEY', default='')
 
 # Configuración de Facebook
 SOCIAL_AUTH_FACEBOOK_KEY = config('SOCIAL_AUTH_FACEBOOK_KEY', default='')
@@ -185,11 +199,3 @@ LOGIN_REDIRECT_URL = '/users/profile/'  # A dónde redirigir tras login exitoso
 LOGOUT_REDIRECT_URL = '/'  # A dónde redirigir tras logout
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/users/profile/'  # Redirección tras login social
 SOCIAL_AUTH_LOGIN_ERROR_URL = '/users/login/'  # Redirección en caso de error
-
-# Esta configuración ya está definida arriba, eliminando duplicación
-
-# Configuración de URL para inicio de sesión
-LOGIN_URL = '/users/login/'  # Asegúrate de que esta URL coincida con la vista de inicio de sesión configurada
-
-# Redirection after login
-LOGIN_REDIRECT_URL = '/users/profile/'  # Redirect to the user's profile page after login

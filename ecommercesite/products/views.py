@@ -5,12 +5,22 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView, DetailView
+from django.core.cache import cache
 from .models import Category, Product, ProductVariant, ProductReview
 from .forms import ProductReviewForm # Import the form
 
 # Helper function for filtering products
 def _filter_products(request, queryset):
     """Applies filters from request GET parameters to a queryset."""
+    # Búsqueda por texto (nombre, descripción, marca)
+    search_query = request.GET.get('q', '').strip()
+    if search_query:
+        queryset = queryset.filter(
+            Q(name__icontains=search_query) |
+            Q(description__icontains=search_query) |
+            Q(brand__name__icontains=search_query)
+        ).distinct()
+    
     selected_genders = request.GET.getlist('gender')
     if selected_genders:
         queryset = queryset.filter(gender__in=selected_genders)
@@ -75,10 +85,34 @@ class ProductListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        all_variants = ProductVariant.objects.values('color', 'size').distinct()
+        
+        # Cachear filtros de variantes (no cambian frecuentemente, timeout 1 hora)
+        cache_key_colors = 'product_variant_colors'
+        cache_key_sizes = 'product_variant_sizes'
+        
+        colors = cache.get(cache_key_colors)
+        if colors is None:
+            colors = ProductVariant.objects.values_list('color', flat=True).distinct()
+            colors = sorted([c for c in colors if c])  # Filtrar None/empty antes de ordenar
+            cache.set(cache_key_colors, colors, 3600)
+        
+        sizes = cache.get(cache_key_sizes)
+        if sizes is None:
+            sizes = ProductVariant.objects.values_list('size', flat=True).distinct()
+            sizes = sorted([s for s in sizes if s])  # Filtrar None/empty antes de ordenar
+            cache.set(cache_key_sizes, sizes, 3600)
+
+        # Cachear categorías (1 hora también)
+        cache_key_cats = 'product_categories'
+        categories = cache.get(cache_key_cats)
+        if categories is None:
+            categories = list(Category.objects.all())
+            cache.set(cache_key_cats, categories, 3600)
 
         context['category'] = self.category
-        context['categories'] = Category.objects.all().prefetch_related('products')
+        context['categories'] = categories
+        context['colors'] = colors
+        context['sizes'] = sizes
         context['price_ranges'] = [
             {"value": "0-50", "label": "Hasta S/ 50"},
             {"value": "50-100", "label": "S/ 50 - S/ 100"},
@@ -90,9 +124,6 @@ class ProductListView(ListView):
             {"value": "W", "label": "Mujer"},
             {"value": "U", "label": "Unisex"}
         ]
-        context['colors'] = sorted([variant['color'] for variant in all_variants if variant['color']])
-        context['sizes'] = sorted([variant['size'] for variant in all_variants if variant['size']])
-
         # Pass selected filters to context for template rendering
         context['selected_categories'] = self.request.GET.getlist('category') if not self.kwargs.get('category_slug') else [self.kwargs.get('category_slug')]
         context['selected_genders'] = self.request.GET.getlist('gender')
@@ -100,11 +131,26 @@ class ProductListView(ListView):
         context['selected_sizes'] = self.request.GET.getlist('size')
         context['selected_prices'] = self.request.GET.getlist('price')
         context['sort_by'] = self.request.GET.get('sort_by', '')
+        context['search_query'] = self.request.GET.get('q', '')
+
+        # Breadcrumbs dinámicos
+        breadcrumbs = [{'label': 'Productos', 'url': None}]
+        if self.category:
+            breadcrumbs = [
+                {'label': 'Productos', 'url': None},
+                {'label': self.category.name, 'url': None},
+            ]
+        elif self.request.GET.get('q'):
+            breadcrumbs = [
+                {'label': 'Productos', 'url': None},
+                {'label': f'Búsqueda: {self.request.GET.get("q")}', 'url': None},
+            ]
+        context['breadcrumbs'] = breadcrumbs
 
         return context
 
 def product_list_ajax(request):
-    products = Product.objects.filter(available=True).select_related('category').prefetch_related('variants')
+    products = Product.objects.filter(available=True).select_related('category', 'brand').prefetch_related('variants')
 
     category_slug = request.GET.get('category_slug')
     if category_slug:
@@ -154,23 +200,36 @@ class ProductDetailView(DetailView):
         variant_colors = sorted(list(product.variants.values_list('color', flat=True).distinct()))
         context['variant_colors'] = variant_colors
 
-        # Get related products
-        related_products = Product.objects.filter(
+        # Get related products - selección aleatoria eficiente sin ORDER BY RAND()
+        related_ids = list(Product.objects.filter(
             category=product.category, available=True
-        ).exclude(id=product.id).select_related('category').prefetch_related('variants', 'reviews').order_by('?')[:4]
-
-        # Ensure related products have a rating value (can be improved with annotation)
+        ).exclude(id=product.id).values_list('id', flat=True))
+        
+        # Si no hay relacionados por categoría, buscar por marca
+        if not related_ids and product.brand:
+            related_ids = list(Product.objects.filter(
+                brand=product.brand, available=True
+            ).exclude(id=product.id).values_list('id', flat=True))
+        
+        # Seleccionar 4 IDs aleatorios en Python (sin ORDER BY RAND() en BD)
+        import random
+        selected_ids = random.sample(related_ids, min(4, len(related_ids))) if related_ids else []
+        
+        related_products = Product.objects.filter(
+            id__in=selected_ids
+        ).select_related('category', 'brand').prefetch_related('variants', 'reviews') if selected_ids else Product.objects.none()
+        
+        # Ensure related products have a rating value
         for related in related_products:
             if related.rating is None:
-                related.rating = 0 # Or handle appropriately in template
+                related.rating = 0
 
         context['related_products'] = related_products
-        context['variants'] = product.variants.all() # Pass variants explicitly if needed
 
         return context
 
 def coleccion(request):
-    featured_products = Product.objects.filter(collection_featured=True)
+    featured_products = Product.objects.filter(collection_featured=True).select_related('category', 'brand').prefetch_related('variants')
     return render(request, 'products/coleccion.html', {'products': featured_products})
 
 def product_list_by_gender(request, gender):
@@ -198,15 +257,8 @@ def submit_review(request, product_id):
             defaults=form.cleaned_data
         )
 
-        # Recalculate average rating (consider moving this logic to model save method or signal)
-        # Ensure the method exists and works correctly
-        try:
-            product.update_average_rating()
-        except AttributeError:
-            # Handle case where method doesn't exist or log a warning
-            logger.warning(f"Product model does not have 'update_average_rating' method.")
-            # Optionally, calculate manually if needed, though model method is preferred
-            pass
+        # Recalculate average rating
+        product.update_rating()
 
         return JsonResponse({
             'success': True,

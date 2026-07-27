@@ -1,0 +1,457 @@
+/**
+ * Estilos mejorados para el proceso de checkout
+ * Diseño responsive mejorado con soporte móvil completo
+ */
+
+/* ========== VARIABLES ========== */
+:root {
+    --checkout-primary: #4f46e5;
+    --checkout-primary-hover: #4338ca;
+    --checkout-success: #10b981;
+    --checkout-border: #e5e7eb;
+    --checkout-bg: #f9fafb;
+    --checkout-radius: 0.75rem;
+}
+
+/* ========== PASOS DEL CHECKOUT ========== */
+.checkout-step {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    border-radius: var(--checkout-radius);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.checkout-step.active {
+    opacity: 1;
+    transform: translateY(0);
+    border-left: 4px solid var(--checkout-primary);
+}
+
+/* ========== BARRA DE PROGRESO ========== */
+.progress-step {
+    transition: all 0.3s ease;
+}
+
+.progress-step .step-circle {
+    transition: all 0.3s ease;
+}
+
+.progress-step.active .step-circle {
+    background-color: var(--checkout-primary);
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
+}
+
+.progress-step.completed .step-circle {
+    background-color: var(--checkout-success);
+    color: white;
+}
+
+.progress-step .step-label {
+    transition: color 0.3s ease;
+}
+
+/* Responsive: ocultar etiquetas en móvil muy pequeño */
+@media (max-width: 400px) {
+    .progress-step .step-label {
+        display: none;
+    }
+    .progress-step .step-circle {
+        width: 28px;
+        height: 28px;
+        font-size: 0.75rem;
+    }
+}
+
+/* ========== FORMULARIOS ========== */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+select,
+textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--checkout-border);
+    border-radius: 0.5rem;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    background-color: white;
+}
+
+/* Mejor tamaño de toque en móvil */
+@media (max-width: 640px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"],
+    select,
+    textarea {
+        padding: 0.85rem;
+        font-size: 1rem; /* Previene zoom en iOS */
+    }
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+input[type="number"]:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--checkout-primary);
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+}
+
+input.border-red-500,
+select.border-red-500,
+textarea.border-red-500 {
+    border-color: #ef4444;
+}
+
+input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 0.25rem;
+    border: 1px solid #e2e8f0;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    cursor: pointer;
+}
+
+input[type="checkbox"]:checked {
+    background-color: var(--checkout-primary);
+    border-color: var(--checkout-primary);
+}
+
+/* Radio buttons personalizados para color/size */
+.option-btn {
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--checkout-border);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    font-size: 0.875rem;
+}
+
+.option-btn:hover {
+    border-color: var(--checkout-primary);
+    background-color: #eef2ff;
+}
+
+.option-btn.selected {
+    border-color: var(--checkout-primary);
+    background-color: #eef2ff;
+    font-weight: 600;
+}
+
+.option-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* ========== BOTONES ========== */
+.btn-next-step {
+    background-color: var(--checkout-primary);
+    font-weight: 500;
+    letter-spacing: 0.025em;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    color: white;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    width: auto;
+}
+
+.btn-next-step:hover {
+    background-color: var(--checkout-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(79, 70, 229, 0.25);
+}
+
+.btn-next-step:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Botón full-width en móvil */
+@media (max-width: 640px) {
+    .btn-next-step {
+        width: 100%;
+        padding: 0.85rem;
+        font-size: 1rem;
+    }
+}
+
+/* ========== AUTOCOMPLETADO ========== */
+.autofill-container {
+    background-color: #eef2ff;
+    border: 1px solid #c7d2fe;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.autofill-container:hover {
+    background-color: #e0e7ff;
+}
+
+.autofill-container h3 {
+    color: var(--checkout-primary);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.autofill-container button {
+    background-color: var(--checkout-primary);
+    color: white;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.autofill-container button:hover {
+    background-color: var(--checkout-primary-hover);
+    transform: translateY(-1px);
+}
+
+/* ========== RESUMEN DE COMPRA ========== */
+.order-summary {
+    border-radius: var(--checkout-radius);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 1rem;
+    transition: all 0.3s ease;
+}
+
+/* En móvil: no sticky, full width */
+@media (max-width: 1024px) {
+    .order-summary {
+        position: static;
+        margin-top: 0;
+    }
+}
+
+/* Scroll personalizado para lista de productos */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #c7d2fe;
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #a5b4fc;
+}
+
+/* Animación hover para items del resumen */
+.order-summary-item {
+    transition: all 0.3s ease;
+    cursor: default;
+}
+
+.order-summary-item:hover {
+    transform: translateX(2px);
+}
+
+/* Total section */
+.order-summary-total {
+    transition: all 0.3s ease;
+}
+
+/* ========== MAPA ========== */
+#checkout-map {
+    border-radius: var(--checkout-radius);
+    overflow: hidden;
+    transition: height 0.3s ease;
+}
+
+@media (max-width: 640px) {
+    #checkout-map {
+        height: 250px !important;
+    }
+}
+
+/* ========== PASOS OCULTOS/MOSTRADOS ========== */
+.checkout-step-container {
+    display: none;
+    transition: all 0.3s ease;
+}
+
+.checkout-step-container.active {
+    display: block;
+}
+
+/* ========== MENSAJES DE ERROR ========== */
+.error-message {
+    color: #ef4444;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.error-message.visible {
+    display: block;
+}
+
+.field-error {
+    border-color: #ef4444 !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== LOADING SPINNER ========== */
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 50%;
+    left: 50%;
+    margin: -10px 0 0 -10px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+.btn-loading .btn-text {
+    visibility: hidden;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ========== NOTIFICACIONES TOAST ========== */
+.checkout-toast {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+    color: white;
+    font-weight: 500;
+    z-index: 9999;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    max-width: 90vw;
+}
+
+.checkout-toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.checkout-toast.success {
+    background-color: var(--checkout-success);
+}
+
+.checkout-toast.error {
+    background-color: #ef4444;
+}
+
+.checkout-toast.warning {
+    background-color: #f59e0b;
+}
+
+/* ========== RESPONSIVE GRID PARA FORMULARIOS ========== */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+@media (max-width: 640px) {
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+}
+
+.form-row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+}
+
+@media (max-width: 640px) {
+    .form-row-3 {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+}
+
+/* ========== ETIQUETAS DE FORMULARIO ========== */
+.form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+
+.form-label-required::after {
+    content: ' *';
+    color: #ef4444;
+}
+
+/* ========== TARJETA DE PAGO ========== */
+.payment-methods {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+}
+
+.payment-method-card {
+    border: 2px solid var(--checkout-border);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.payment-method-card:hover {
+    border-color: var(--checkout-primary);
+    background-color: #eef2ff;
+}
+
+.payment-method-card.selected {
+    border-color: var(--checkout-primary);
+    background-color: #eef2ff;
+}
+
+.payment-method-card img {
+    height: 32px;
+    margin: 0 auto 0.5rem;
+}

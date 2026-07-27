@@ -10,7 +10,17 @@ class NotificationSystem {
         this.container.style.top = '20px';
         this.container.style.right = '20px';
         this.container.style.zIndex = '1000';
-        document.body.appendChild(this.container);
+        
+        // Verificar que document.body existe antes de añadir el contenedor
+        if (document.body) {
+            document.body.appendChild(this.container);
+        } else {
+            console.warn('NotificationSystem: document.body no está disponible todavía');
+            // Añadiremos el contenedor cuando el DOM esté listo
+            document.addEventListener('DOMContentLoaded', () => {
+                document.body.appendChild(this.container);
+            });
+        }
         
         this.notifications = [];
         this.maxNotifications = 3;
@@ -162,11 +172,22 @@ class NotificationSystem {
     }
 }
 
-// Crear una instancia global
-const notifications = new NotificationSystem();
+// Crear una instancia global cuando el DOM esté listo
+let notifications;
+
+document.addEventListener('DOMContentLoaded', function() {
+    notifications = new NotificationSystem();
+});
 
 // Reemplazar la función showNotification existente
 function showNotification(message, type = 'info', options = {}) {
+    // Verificar que la instancia existe
+    if (!notifications) {
+        console.warn('Sistema de notificaciones no inicializado todavía');
+        // Crear la instancia si no existe
+        notifications = new NotificationSystem();
+    }
+    
     switch (type) {
         case 'success':
             return notifications.success(message, options);
